@@ -1,0 +1,130 @@
+{
+  "actions": [
+    {
+      "id": 1,
+      "type": "normal",
+      "title": "Political Favor",
+      "description": "For every player that offers 10 people they get 15 of influence.",
+      "effect": {
+        "self": {
+          "money": null,
+          "people": -10,
+          "influence": 15
+        },
+        "others": {
+          "money": null,
+          "people": -10,
+          "influence": 15
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "normal",
+      "title": "Fund the Movement",
+      "description": "Lose 10 Money, gain 15 People.",
+      "effect": {
+        "self": {
+          "money": -10,
+          "people": 15,
+          "influence": null
+        },
+        "others": {
+          "money": -10,
+          "people": 15,
+          "influence": null
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "normal",
+      "title": "Resource Swap",
+      "description": "Offer to trade 10 Influence for 10 Money from any player who accepts.",
+      "effect": {
+        "self": {
+          "money": 10,
+          "people": null,
+          "influence": -10
+        },
+        "others": {
+          "money": 10,
+          "people": null,
+          "influence": -10
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "normal",
+      "title": "Resource Swap",
+      "description": "Offer to trade 10 people for 10 Money from any player who accepts.",
+      "effect": {
+        "self": {
+          "money": 10,
+          "people": -10,
+          "influence": null
+        },
+        "others": {
+          "money": 10,
+          "people": -10,
+          "influence": null
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "normal",
+      "title": "Resource Swap",
+      "description": "Offer to trade 10 people for 10 influence from any player who accepts.",
+      "effect": {
+        "self": {
+          "money": null,
+          "people": -10,
+          "influence": 10
+        },
+        "others": {
+          "money": null,
+          "people": -10,
+          "influence": 10
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "normal",
+      "title": "Charity Campaign",
+      "description": "Lose 10 Money to gain 15 People.",
+      "effect": {
+        "self": {
+          "money": -10,
+          "people": 15,
+          "influence": null
+        },
+        "others": {
+          "money": -10,
+          "people": 15,
+          "influence": null
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "normal",
+      "title": "Influencer Partnership",
+      "description": "Trade 15 People to gain 10 Influence.",
+      "effect": {
+        "self": {
+          "money": null,
+          "people": -15,
+          "influence": 10
+        },
+        "others": {
+          "money": null,
+          "people": -15,
+          "influence": 10
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[
+    {
+        "id": "goal_019",
+        "title": "Saboteur Supreme",
+        "description": "Cause a total of 80% Influence loss across all players by round 6."
+      },
+      
+      {
+        "id": "goal_018",
+        "title": "Flipping the Scales",
+        "description": "End the game with more than 70% Influence and ensure the player across from you has less than 30% People.",
+        "resources" : {
+          "influence" : 70 ,
+          "money" : 30
+        }
+      }
+]
