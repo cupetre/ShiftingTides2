@@ -7,6 +7,9 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField] private Sprite[] playerSprites; // 4 pixel art characters
     private NetworkVariable<int> playerId = new NetworkVariable<int>(-1); // Unique ID
 
+    public NetworkVariable<string> PlayerName = new NetworkVariable<string>("Player"); // Player name
+    public NetworkVariable<int> goalIndex = new NetworkVariable<int>(-1); // Goal index
+
     public void SetPlayerId(int id)
 {
     if (IsServer)

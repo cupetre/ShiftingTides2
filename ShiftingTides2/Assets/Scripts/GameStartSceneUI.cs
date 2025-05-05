@@ -151,9 +151,9 @@ public class GameStartSceneUI: NetworkBehaviour
     {
         ShowVoteFeedbackTextClientRpc("You pressed Yes!");
         // Send a Command to the server about the "yes" vote (you'll need a script on the player or a game controller for this)
-        if (NetworkManager.Singleton.LocalPlayer != null)
+        if (NetworkManager.Singleton.LocalClient.PlayerObject != null)
         {
-            NetworkManager.Singleton.LocalPlayer.GetComponent<YourVotingScript>()?.SubmitVoteServerRpc(true);
+            NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<YourVotingScript>()?.SubmitVoteServerRpc(true);
         }
     }
 
@@ -161,9 +161,9 @@ public class GameStartSceneUI: NetworkBehaviour
     {
         ShowVoteFeedbackTextClientRpc("You pressed No!");
         // Send a Command to the server about the "no" vote (you'll need a script on the player or a game controller for this)
-        if (NetworkManager.Singleton.LocalPlayer != null)
+        if (NetworkManager.Singleton.LocalClient.PlayerObject != null)
         {
-            NetworkManager.Singleton.LocalPlayer.GetComponent<YourVotingScript>()?.SubmitVoteServerRpc(false);
+            NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<YourVotingScript>()?.SubmitVoteServerRpc(false);
         }
     }
 }

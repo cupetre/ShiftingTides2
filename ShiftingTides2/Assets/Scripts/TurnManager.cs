@@ -100,7 +100,8 @@ public class TurnManager : NetworkBehaviour
     [ServerRpc]
     private void RequestEndTurnServerRpc(ServerRpcParams rpcParams = default)
     {
-        Debug.Log($"[Server] Client {rpcParams.SenderClientId} requested to end their turn.");
+        int clientId = playerOrder.IndexOf(rpcParams.Receive.SenderClientId);
+        Debug.Log($"[Server] Client " + clientId + " requested to end their turn.");
         AdvanceTurn();
     }
 
