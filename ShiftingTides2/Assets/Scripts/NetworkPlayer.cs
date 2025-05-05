@@ -43,14 +43,14 @@ public class NetworkPlayer : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void SetPlayerPositionClientRpc(int index) // This ClientRpc is no longer directly called by GameManager
+    public void SetPlayerPositionClientRpc(int index)
     {
         Vector3[] positions = new Vector3[]
         {
-            new Vector3(0, 2, 0),   // Host
-            new Vector3(-2, -1, 0), // Client 1
-            new Vector3(0, -1, 0),  // Client 2
-            new Vector3(2, -1, 0)   // Client 3
+        new Vector3(4f, 1f, 0f),   // Player 1
+        new Vector3(4f, -1f, 0f),  // Player 2
+        new Vector3(2f, 1f, 0f),   // Player 3
+        new Vector3(2f, -1f, 0f)   // Player 4
         };
 
         if (index >= 0 && index < positions.Length)
@@ -79,6 +79,11 @@ public class NetworkPlayer : NetworkBehaviour
         {
             SetPlayerPositionClientRpc(newId); // Call the ClientRpc on the owner to set their position
             Debug.Log($"[NetworkPlayer] You are Player {newId}");
+        }
+        else if (!IsOwner && newId >= 0)
+        {
+            SetPlayerPositionClientRpc(newId); // Let the server tell all clients their position
+            Debug.Log($"[NetworkPlayer] Client received playerId {newId}, setting position.");
         }
     }
 }
