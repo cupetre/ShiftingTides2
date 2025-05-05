@@ -65,11 +65,17 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.44f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Resources\Cards\GoalCards\goalManager.cs" />
     <Compile Include="Assets\Scripts\UIManager.cs" />
+    <Compile Include="Assets\Scripts\TurnManager.cs" />
+    <Compile Include="Assets\Resources\Cards\GoalCards\JsonHelper.cs" />
+    <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\MainMenuUI.cs" />
-    <Compile Include="Assets\Resources\Votes\VoteManager.cs" />
+    <Compile Include="Assets\Scripts\GameStartSceneUI.cs" />
+    <Compile Include="Assets\Resources\Cards\GoalCards\GoalDisplay.cs" />
     <Compile Include="Assets\Resources\Resources\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Resources\Cards\GoalCards\Goal.cs" />
     <Compile Include="Assets\Scripts\NetworkPlayer.cs" />
     <Compile Include="Assets\Scripts\ConnectionManager.cs" />
   </ItemGroup>

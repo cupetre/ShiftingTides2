@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,14 +34,20 @@ public class GameManager : NetworkBehaviour
         return assignedIndex;
     }
 
-private void OnClientConnected(ulong clientId)
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+    }
+
+    private void OnClientConnected(ulong clientId)
     {
         Debug.Log($"[GameManager] Player {clientId} connected. Total: {NetworkManager.Singleton.ConnectedClients.Count}");
 
         if (IsServer)
         {
-            Debug.Log($"[GameManager] Spawning player for client: {clientId}");
-            GameObject playerInstance = Instantiate(playerPrefab);
+            // Spawn a temporary representation of the player in the main menu (optional, for visual feedback)
+            GameObject playerInstance = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity); // Adjust position as needed
             NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
             if (networkObject != null)
             {
@@ -50,41 +58,55 @@ private void OnClientConnected(ulong clientId)
                 Debug.LogError($"[GameManager] Player prefab does not have a NetworkObject component!");
             }
 
-            // Assign a unique index to the connecting player
-            int playerIndex = AssignPlayerIndex();
-
-            // Get the NetworkPlayer component of the newly connected client's player object
-            if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out NetworkClient client))
+            // Check if all players are connected
+            if (NetworkManager.Singleton.ConnectedClients.Count == maxPlayers)
             {
-                if (client.PlayerObject != null)
+                Debug.Log("[GameManager] All players connected in the main menu. Assigning goal cards...");
+                AssignGoalCardsToPlayers();
+                Debug.Log("[GameManager] Loading GameStartScene...");
+                NetworkManager.Singleton.SceneManager.LoadScene("GameStartScene", LoadSceneMode.Single);
+            }
+        }
+    }
+
+    private void AssignGoalCardsToPlayers()
+    {
+        if (IsServer && GoalManager.Instance != null && GoalManager.Instance.AreGoalsLoaded())
+        {
+            List<ulong> clientIds = NetworkManager.Singleton.ConnectedClientsIds.ToList();
+            if (clientIds.Count == maxPlayers)
+            {
+                foreach (ulong clientId in clientIds)
                 {
-                    var networkPlayer = client.PlayerObject.GetComponent<NetworkPlayer>();
-                    if (networkPlayer != null)
+                    if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out NetworkClient client) && client.PlayerObject != null)
                     {
-                        networkPlayer.SetPlayerId(playerIndex);
-                        Debug.Log($"[GameManager] Set playerId {playerIndex} for client {clientId}");
+                        var networkPlayer = client.PlayerObject.GetComponent<NetworkPlayer>();
+                        if (networkPlayer != null)
+                        {
+                            int randomGoalIndex = GoalManager.Instance.GetRandomGoalIndex();
+                            networkPlayer.goalIndex.Value = randomGoalIndex;
+                            GoalManager.Instance.AssignGoalToPlayer(clientId, randomGoalIndex);
+                            Debug.Log($"[GameManager] Assigned goal index {randomGoalIndex} to client {clientId} in the main menu.");
+                        }
+                        else
+                        {
+                            Debug.LogError($"[GameManager] NetworkPlayer component not found for client {clientId} during goal card assignment.");
+                        }
                     }
                     else
                     {
-                        Debug.LogError($"[GameManager] NetworkPlayer component not found on PlayerObject for client: {clientId}");
+                        Debug.LogError($"[GameManager] PlayerObject is null for client {clientId} during goal card assignment.");
                     }
-                }
-                else
-                {
-                    Debug.LogError($"[GameManager] PlayerObject is null for client: {clientId}");
                 }
             }
             else
             {
-                Debug.LogError($"[GameManager] Connected client not found: {clientId}");
+                Debug.LogError("[GameManager] Not enough players connected to assign goal cards.");
             }
-
-            // Check if all players are connected and load the next scene
-            if (NetworkManager.Singleton.ConnectedClients.Count == maxPlayers)
-            {
-                Debug.Log("[GameManager] All players connected. Loading GameStartScene...");
-                NetworkManager.Singleton.SceneManager.LoadScene("GameStartScene", LoadSceneMode.Single);
-            }
+        }
+        else
+        {
+            Debug.LogError("[GameManager] GoalManager not initialized or goals not loaded when trying to assign cards.");
         }
     }
 
