@@ -1,39 +1,50 @@
+using System;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
 public class NetworkPlayer : NetworkBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
+
     [SerializeField] private Sprite[] playerSprites; // 4 pixel art characters
+
     private NetworkVariable<int> playerId = new NetworkVariable<int>(-1); // Unique ID
+    public NetworkVariable<int> goalIndex = new NetworkVariable<int>(-1, 
+        NetworkVariableReadPermission.Everyone, 
+        NetworkVariableWritePermission.Server
+        );
+    public NetworkVariable<int> goalIndexVariable = new NetworkVariable<int>(-1);
 
     public void SetPlayerId(int id)
+    {
+        if (IsServer)
+        {
+            playerId.Value = id;
+        }
+        else
+        {
+            Debug.LogWarning($"[NetworkPlayer] Attempted to set playerId on client. This should only be done on the server.");
+        }
+    }
+    public override void OnNetworkSpawn()
 {
     if (IsServer)
     {
-        playerId.Value = id;
+        int index = GameManager.Instance.AssignPlayerIndex();
+        SetPlayerPositionClientRpc(index);
+
+        // Assign a random goal index from GoalManager to the player
+        int goalIndex = GoalManager.Instance.GetRandomGoalIndex();
+        goalIndexVariable.Value = goalIndex; // Set the value for the player
     }
-    else
+
+    if (IsOwner)
     {
-        Debug.LogWarning($"[NetworkPlayer] Attempted to set playerId on client. This should only be done on the server.");
+        AssignSprite();
+        UIManager.Instance.ShowConnectedMessage();
     }
 }
-    public override void OnNetworkSpawn()
-    {
-        playerId.OnValueChanged += OnPlayerIdChanged;
-
-        if (IsServer)
-        {
-            int index = GameManager.Instance.AssignPlayerIndex();
-            playerId.Value = index; // Set the playerId on the server, which will sync to clients
-        }
-
-        if (IsOwner)
-        {
-            AssignSprite();
-            UIManager.Instance.ShowConnectedMessage();
-        }
-    }
 
     private void AssignSprite()
     {
@@ -62,6 +73,7 @@ public class NetworkPlayer : NetworkBehaviour
             Debug.LogError($"[NetworkPlayer] Invalid player index received: {index}");
         }
     }
+
 
     private void OnPlayerIdChanged(int oldId, int newId)
     {

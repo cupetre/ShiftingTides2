@@ -10,6 +10,8 @@ public class GoalManager : MonoBehaviour
     public Goal[] goals;
     private bool goalsLoaded = false;
 
+    private HashSet<int> assignedGoalIndices = new HashSet<int>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -74,17 +76,16 @@ public class GoalManager : MonoBehaviour
 
     public int GetRandomGoalIndex()
     {
-        if (!goalsLoaded) return -1;
+        if (!goalsLoaded || goals == null || goals.Length == 0) return -1;
 
-        // Find unused goal
-        int goalAssigned = UnityEngine.Random.Range(0, goals.Length);
-        while (goals[goalAssigned].used)
+        int randomIndex;
+        do
         {
-            goalAssigned = UnityEngine.Random.Range(0, goals.Length);
-        }
-        
-        goals[goalAssigned].used = true;
-        return goalAssigned;
+            randomIndex = UnityEngine.Random.Range(0, goals.Length);
+        } while (assignedGoalIndices.Contains(randomIndex));
+
+        assignedGoalIndices.Add(randomIndex);
+        return randomIndex;
     }
 
     public bool AreGoalsLoaded()

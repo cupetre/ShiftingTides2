@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 [System.Serializable]
 public class Goal
@@ -6,9 +7,9 @@ public class Goal
     [System.Serializable]
     public class Resources
     {
-        public int money = 0;
-        public int influence = 0;
-        public int people = 0;
+        public int money ;
+        public int influence ;
+        public int people ;
     }
 
     public enum TargetType { Self, Opponents }

@@ -13,14 +13,6 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private int maxPlayers = 4;
 
     [SerializeField] private GameObject playerPrefab;
- 
-    private void Awake()
-    {
-        if (Instance == null) 
-            Instance = this;
-        else
-            Destroy(gameObject);
-    }
 
     private void Start()
     {
@@ -33,8 +25,7 @@ public class GameManager : NetworkBehaviour
         currentPlayerIndex++;
         return assignedIndex;
     }
-
-    public override void OnNetworkSpawn()
+ public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
