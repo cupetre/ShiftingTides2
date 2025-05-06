@@ -869,6 +869,63 @@ MonoBehaviour:
   hostButton: {fileID: 1611812114}
   clientButton: {fileID: 1240514595}
   statusText: {fileID: 392598201}
+--- !u!1 &1066248040
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1066248042}
+  - component: {fileID: 1066248041}
+  m_Layer: 0
+  m_Name: audioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1066248041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066248040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a8981170f2031c4b99f8bfe2a7e09f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  backgroundMusic: {fileID: 8300000, guid: 273d80d8f7560a448a8d8cdde4557e1e, type: 3}
+  mainMenuMusic: {fileID: 8300000, guid: 7c93c777059173b43a2ac7780e08416e, type: 3}
+  gavelHitSound: {fileID: 8300000, guid: 7bc0f139f2f4b574fbcbd489e6b223cb, type: 3}
+  heartbeatSound: {fileID: 8300000, guid: 816c455ec537d5d43bdfeeff34e2b818, type: 3}
+  corrIncorrSound: {fileID: 8300000, guid: 382ed60e39342674f973dc695b6670f0, type: 3}
+  crowdSound: {fileID: 8300000, guid: a36d85282f2fe124fac549f951fd7a53, type: 3}
+  musicVolume: 0.2
+  mainMenuVolume: 0.5
+  maxHeartbeatVolume: 0.8
+  minHeartbeatVolume: 0.2
+  gavelHitVolume: 0.5
+  corrIncorrVolume: 0.5
+  crowdVolume: 0.1
+--- !u!4 &1066248042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1066248040}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.61767864, y: -0.23742378, z: 0.027011935}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1128434917
 GameObject:
   m_ObjectHideFlags: 0
@@ -1543,3 +1600,4 @@ SceneRoots:
   - {fileID: 1211053391}
   - {fileID: 1731515873}
   - {fileID: 2100721271}
+  - {fileID: 1066248042}

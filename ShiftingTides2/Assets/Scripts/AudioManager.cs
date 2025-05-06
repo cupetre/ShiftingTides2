@@ -1,22 +1,26 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
     public AudioClip backgroundMusic;
+    public AudioClip mainMenuMusic;
     public AudioClip gavelHitSound;
     public AudioClip heartbeatSound;
     public AudioClip corrIncorrSound;
     public AudioClip crowdSound;
 
     public float musicVolume = 0.2f;
+    public float mainMenuVolume = 0.5f;
     public float maxHeartbeatVolume = 0.8f;
     public float minHeartbeatVolume = 0.2f;
     public float gavelHitVolume = 0.5f;
     public float corrIncorrVolume = 0.5f;
-    public float crowdVolume = 0.1f;
+    public float crowdVolume = 0.01f;
 
     private AudioSource audioSourceBG;
+    private AudioSource audioSourceMainMenu;
     private AudioSource audioSourceGavel;
     private AudioSource audioSourceHeartbeat;
     private AudioSource audioSourceCorrIncorr;
@@ -31,6 +35,13 @@ public class AudioManager : MonoBehaviour
         audioSourceBG.loop = true;
         audioSourceBG.volume = musicVolume;
         audioSourceBG.playOnAwake = false;
+
+        audioSourceMainMenu = gameObject.AddComponent<AudioSource>();
+        audioSourceMainMenu.name = "MainMenuMusic";
+        audioSourceMainMenu.clip = mainMenuMusic;
+        audioSourceMainMenu.loop = true;
+        audioSourceMainMenu.volume = mainMenuVolume;
+        audioSourceMainMenu.playOnAwake = false;
 
         audioSourceCrowd = gameObject.AddComponent<AudioSource>();
         audioSourceCrowd.name = "CrowdSound";
@@ -59,18 +70,25 @@ public class AudioManager : MonoBehaviour
         audioSourceCorrIncorr.volume = corrIncorrVolume;
         audioSourceCorrIncorr.loop = false;
         audioSourceCorrIncorr.playOnAwake = false;
+
+        // Check name of the current scene
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        if (currentSceneName == "MainMenuScene")
+        {
+            audioSourceMainMenu.Play();
+        }
+        else
+        {
+            audioSourceMainMenu.Stop();
+            //audioSourceBG.Play();
+            //audioSourceCrowd.Play();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
 
-    }
-
-    public void PlayBackgroundMusic()
-    {
-        audioSourceBG.Play();
-        audioSourceCrowd.Play();
     }
 
     public void PlayGavelHitSound()

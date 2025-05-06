@@ -34,20 +34,6 @@ public class GameManager : NetworkBehaviour
 
     public int AssignPlayerIndex()
     {
-        //ulong clientId = NetworkManager.Singleton.LocalClientId;
-
-        //if (assignedClientIds.Contains(clientId))
-        //{
-        //    Debug.LogError($"[GameManager] Client {clientId} already assigned an index.");
-        //    return -1;
-        //}
-
-        //assignedClientIds.Add(clientId);
-        //int playerIndex = nextPlayerIndex;
-        //nextPlayerIndex++;
-
-        //Debug.Log($"[GameManager] Assigned player index {playerIndex} to client {clientId}");
-        //return playerIndex;
         for (int i = 0; i < maxPlayers; i++)
         {
             if (!assignedIndices.Contains(i))
