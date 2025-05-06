@@ -4,44 +4,35 @@ using Unity.Netcode;
 
 public class GoalDisplay : MonoBehaviour
 {
+    public static GoalDisplay Instance;
+    
     [SerializeField] private TextMeshProUGUI goalTitle;
     [SerializeField] private TextMeshProUGUI goalDescription;
-    [SerializeField] private GameObject cardObject; 
-    void Start()
-    {
-        NetworkPlayer localPlayer = null;
-        
-        foreach (var player in FindObjectsByType<NetworkPlayer>(FindObjectsSortMode.None))
-        {
-            if (player.IsOwner)
-            {
-                localPlayer = player;
-                break;
-            }
-        }
+    [SerializeField] private GameObject cardObject;
 
-        if (localPlayer != null)
-        {
-            Goal goal = GoalManager.Instance.GetGoal(localPlayer.goalIndex.Value);
-            goalDescription.text = goal.description;
-            goalTitle.text = goal.title;
-        }
-        else
-        {
-            Debug.LogError("Local player not found!");
-        }
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    public void Show(Goal goal)
+    public void DisplayGoal(Goal goal)
     {
+        if (goal == null)
+        {
+            Debug.LogError("Received null goal!");
+            return;
+        }
+
         goalTitle.text = goal.title;
         goalDescription.text = goal.description;
         cardObject.SetActive(true);
+        
+        Debug.Log($"Displaying goal: {goal.title}");
     }
 
-
-    public void closeGoal() 
+    public void CloseGoal() 
     {
-         cardObject.SetActive(false);
+        cardObject.SetActive(false);
     }
 }

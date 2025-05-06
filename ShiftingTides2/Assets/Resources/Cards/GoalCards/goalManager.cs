@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class GoalManager : MonoBehaviour
 {
@@ -76,14 +77,23 @@ public class GoalManager : MonoBehaviour
 
     public int GetRandomGoalIndex()
     {
-        if (!goalsLoaded || goals == null || goals.Length == 0) return -1;
+        if (!goalsLoaded || goals == null) return -1;
 
-        int randomIndex;
-        do
+        // Create list of available indices
+        List<int> availableIndices = new List<int>();
+        for (int i = 0; i < goals.Length; i++)
         {
-            randomIndex = UnityEngine.Random.Range(0, goals.Length);
-        } while (assignedGoalIndices.Contains(randomIndex));
+            if (!assignedGoalIndices.Contains(i))
+                availableIndices.Add(i);
+        }
 
+        if (availableIndices.Count == 0)
+        {
+            Debug.LogWarning("No more unique goals available!");
+            return -1;
+        }
+
+        int randomIndex = availableIndices[Random.Range(0, availableIndices.Count)];
         assignedGoalIndices.Add(randomIndex);
         return randomIndex;
     }
