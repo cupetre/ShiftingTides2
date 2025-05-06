@@ -2,14 +2,19 @@ using Unity.Netcode;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
 
+    private HashSet<ulong> assignedClientIds = new HashSet<ulong>();
+    private int nextPlayerIndex = 0;
+
+    private HashSet<int> assignedIndices = new HashSet<int>();
+
     [SerializeField] private int maxPlayers = 4;
     [SerializeField] private GameObject playerPrefab;
-    private int currentPlayerIndex = 0;
 
     private void Awake()
     {
@@ -29,53 +34,117 @@ public class GameManager : NetworkBehaviour
 
     public int AssignPlayerIndex()
     {
-        return currentPlayerIndex++;
+        //ulong clientId = NetworkManager.Singleton.LocalClientId;
+
+        //if (assignedClientIds.Contains(clientId))
+        //{
+        //    Debug.LogError($"[GameManager] Client {clientId} already assigned an index.");
+        //    return -1;
+        //}
+
+        //assignedClientIds.Add(clientId);
+        //int playerIndex = nextPlayerIndex;
+        //nextPlayerIndex++;
+
+        //Debug.Log($"[GameManager] Assigned player index {playerIndex} to client {clientId}");
+        //return playerIndex;
+        for (int i = 0; i < maxPlayers; i++)
+        {
+            if (!assignedIndices.Contains(i))
+            {
+                assignedIndices.Add(i);
+                Debug.Log($"[GameManager] Assigned player index {i}");
+                return i;
+            }
+        }
+        Debug.LogError("[GameManager] No available player indices!");
+        return -1;
     }
 
     private void OnClientConnected(ulong clientId)
-{
-    Debug.Log($"[GameManager] Player {clientId} connected.");
-
-    if (IsServer)
     {
-        // Spawn the player
-        GameObject playerInstance = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-        NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
-        networkObject.SpawnAsPlayerObject(clientId);
+        Debug.Log($"[GameManager] Player {clientId} connected.");
 
-        // === ADD GOAL ASSIGNMENT HERE === //
-        NetworkPlayer player = playerInstance.GetComponent<NetworkPlayer>();
-        if (player != null)
+        if (!IsServer)
         {
-            int goalIdx = GoalManager.Instance.GetRandomGoalIndex();
-            player.goalIndex.Value = goalIdx; // Syncs to all clients
-            Debug.Log($"[GameManager] Assigned goal {goalIdx} to player {clientId}");
+            Debug.LogWarning("[GameManager] OnClientConnected called on non-server instance. Skipping.");
+        }
+
+        GameObject playerInstance;
+
+        // Check if the player already has a NetworkObject
+        if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null)
+        {
+            playerInstance = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
+            Debug.Log($"[GameManager] Player {clientId} already has a player instance.");
         }
         else
         {
-            Debug.LogError("[GameManager] Player prefab missing NetworkPlayer component!");
+            playerInstance = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+            NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
+
+            if (networkObject == null)
+            {
+                Debug.LogError("[GameManager] Player prefab does not have a NetworkObject component.");
+                Destroy(playerInstance);
+                return;
+            }
+
+            networkObject.SpawnAsPlayerObject(clientId);
         }
-        // ================================ //
+
+        InitializePlayer(playerInstance, clientId);
+    }
+
+    private void InitializePlayer(GameObject playerInstance, ulong clientId)
+    {
+        // Assign a player index
+        NetworkPlayer player = playerInstance.GetComponent<NetworkPlayer>();
+        if (player != null)
+        {
+            int index = AssignPlayerIndex();
+            if (index >= 0)
+            {
+                player.playerIndex.Value = index; // Syncs to all clients
+                Debug.Log($"[GameManager] Assigned player index {index} to client {clientId}");
+            }
+            else
+            {
+                Debug.LogError("[GameManager] No available player indices!");
+            }
+        }
+        else
+        {
+            Debug.LogError("[GameManager] Player prefab does not have a NetworkPlayer component.");
+        }
 
         // Check if all players are connected
         if (NetworkManager.Singleton.ConnectedClients.Count == maxPlayers)
         {
             Debug.Log("[GameManager] All players connected. Loading GameStartScene...");
             NetworkManager.Singleton.SceneManager.LoadScene("GameStartScene", LoadSceneMode.Single);
+            // Assign goals to players
+            AssignGoalsToPlayers();
         }
     }
-}
 
-    private void AssignGoalCardsToPlayers()
+    private void AssignGoalsToPlayers()
     {
-        if (!IsServer || GoalManager.Instance == null) return;
-
-        foreach (var client in NetworkManager.Singleton.ConnectedClients)
+        foreach (var clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            var player = client.Value.PlayerObject.GetComponent<NetworkPlayer>();
-            if (player != null)
+            NetworkPlayer player = NetworkManager.ConnectedClients[clientId].PlayerObject.GetComponent<NetworkPlayer>();
+            if (player != null && player.goalIndex.Value == -1)
             {
-                player.goalIndexVariable.Value = GoalManager.Instance.GetRandomGoalIndex();
+                int goalIndex = GoalManager.Instance.GetRandomGoalIndex();
+                if (goalIndex >= 0)
+                {
+                    player.goalIndex.Value = goalIndex;
+                    Debug.Log($"[GameManager] Assigned goal {goalIndex} to player {clientId}");
+                }
+            }
+            else
+            {
+                Debug.LogError("[GameManager] Player either missing, no more unique goals or already assigned goal!");
             }
         }
     }

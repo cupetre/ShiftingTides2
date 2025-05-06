@@ -8,6 +8,12 @@ public class GoalManager : MonoBehaviour
 {
     public static GoalManager Instance;
 
+    [System.Serializable]
+    public class GoalArrayWrapper
+    {
+        public Goal[] goals;
+    }
+
     public Goal[] goals;
     private bool goalsLoaded = false;
 
@@ -40,7 +46,9 @@ public class GoalManager : MonoBehaviour
         try
         {
             // Deserialize JSON data
-            goals = JsonHelper.FromJson<Goal>(jsonFile.text);
+            GoalArrayWrapper wrapper = JsonUtility.FromJson<GoalArrayWrapper>(jsonFile.text);
+            //goals = JsonHelper.FromJson<Goal>(jsonFile.text);
+            goals = wrapper?.goals;
             Debug.Log($"[GoalManager] Loaded {goals?.Length} goals");
             Debug.Log($"[GoalManager] Deserialized JSON: {JsonUtility.ToJson(goals, true)}");
 
@@ -79,7 +87,7 @@ public class GoalManager : MonoBehaviour
     {
         if (!goalsLoaded || goals == null) return -1;
 
-        // Create list of available indices
+        // Create a list of available indices
         List<int> availableIndices = new List<int>();
         for (int i = 0; i < goals.Length; i++)
         {
@@ -89,10 +97,11 @@ public class GoalManager : MonoBehaviour
 
         if (availableIndices.Count == 0)
         {
-            Debug.LogWarning("No more unique goals available!");
+            Debug.LogWarning("[GoalManager] No more unique goals available!");
             return -1;
         }
 
+        // Assign a random goal
         int randomIndex = availableIndices[Random.Range(0, availableIndices.Count)];
         assignedGoalIndices.Add(randomIndex);
         return randomIndex;
@@ -109,6 +118,7 @@ public class GoalManager : MonoBehaviour
     public void AssignGoalToPlayer(ulong clientId, int goalIndex)
     {
         assignedGoals[clientId] = goals[goalIndex];
+        Debug.Log($"[GoalManager] Assigned goal {goalIndex} to player {clientId}");
     }
 
     public Goal GetPlayerGoal(ulong clientId)
