@@ -98,4 +98,20 @@ public class ResourceManager : NetworkBehaviour
             influenceCount.text = influence[playerIndex] + "%";
         }
     }
+
+    public int GetMoney(int playerIndex)
+    {
+        return money[playerIndex];
+    }
+
+    public int GetPeople(int playerIndex)
+    {
+        return people[playerIndex];
+    }
+
+    public int GetInfluence(int playerIndex)
+    {
+        return Mathf.RoundToInt(influence[playerIndex]);
+    }
+
 }
