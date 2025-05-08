@@ -8,6 +8,8 @@ public class ResourceManager : NetworkBehaviour
     public NetworkList<int> people;
     public NetworkList<float> influence;
 
+    public NetworkList<bool> loseList;
+
     public TextMeshProUGUI moneyCount;
     public TextMeshProUGUI peopleCount;
     public Slider influenceSlider;
@@ -20,6 +22,7 @@ public class ResourceManager : NetworkBehaviour
         money = new NetworkList<int>();
         people = new NetworkList<int>();
         influence = new NetworkList<float>();
+        loseList = new NetworkList<bool>();
     }
 
     public override void OnNetworkSpawn()
@@ -31,6 +34,7 @@ public class ResourceManager : NetworkBehaviour
                 money.Add(50);
                 people.Add(50);
                 influence.Add(50f);
+                loseList.Add(false);
             }
         }
 
@@ -60,7 +64,7 @@ public class ResourceManager : NetworkBehaviour
 
         if (money[playerIndex] == 0)
         {
-           loseByNullResourceServerRpc(playerIndex);
+            loseList[playerIndex] = true;
         }
     }
 
@@ -70,7 +74,7 @@ public class ResourceManager : NetworkBehaviour
         people[playerIndex] += amount;
         if (people[playerIndex] == 0)
         {
-           loseByNullResourceServerRpc(playerIndex);
+          loseList[playerIndex] = true;
         }
     }
 
@@ -80,7 +84,7 @@ public class ResourceManager : NetworkBehaviour
         influence[playerIndex] = Mathf.Clamp(influence[playerIndex] + amount, 0, 100);
         if (influence[playerIndex] == 0)
         {
-           loseByNullResourceServerRpc(playerIndex);
+           loseList[playerIndex] = true;
         }
     }
 
@@ -95,10 +99,5 @@ public class ResourceManager : NetworkBehaviour
         {
             influenceCount.text = influence[playerIndex] + "%";
         }
-    }
-
-    [ServerRpc]
-    public void loseByNullResourceServerRpc(int playerIndex){
-        
     }
 }
