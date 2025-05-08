@@ -12,7 +12,6 @@ public class GameManager : NetworkBehaviour
     public NetworkVariable<List<ulong>> clientIds = new NetworkVariable<List<ulong>>(new List<ulong>(0),
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
-    private int nextPlayerIndex = 0;
 
     private HashSet<int> assignedIndices = new HashSet<int>();
 
