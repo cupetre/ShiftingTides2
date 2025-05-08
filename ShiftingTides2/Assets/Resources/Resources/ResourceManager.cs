@@ -38,8 +38,6 @@ public class ResourceManager : NetworkBehaviour
             }
         }
 
-        playerIndex = GetComponent<NetworkPlayer>().playerIndex.Value;
-
         money.OnListChanged += OnResourceChanged;
         people.OnListChanged += OnResourceChanged;
         influence.OnListChanged += OnResourceChanged;

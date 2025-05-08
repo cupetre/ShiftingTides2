@@ -7,12 +7,12 @@
       "description": "For every player that offers 10 people they get 15 of influence.",
       "effect": {
         "self": {
-          "money": null,
+          "money": 0,
           "people": -10,
           "influence": 15
         },
         "others": {
-          "money": null,
+          "money": 0,
           "people": -10,
           "influence": 15
         }
@@ -27,12 +27,12 @@
         "self": {
           "money": -10,
           "people": 15,
-          "influence": null
+          "influence": 0
         },
         "others": {
           "money": -10,
           "people": 15,
-          "influence": null
+          "influence": 0
         }
       }
     },
@@ -44,12 +44,12 @@
       "effect": {
         "self": {
           "money": 10,
-          "people": null,
+          "people": 0,
           "influence": -10
         },
         "others": {
           "money": 10,
-          "people": null,
+          "people": 0,
           "influence": -10
         }
       }
@@ -63,12 +63,12 @@
         "self": {
           "money": 10,
           "people": -10,
-          "influence": null
+          "influence": 0
         },
         "others": {
           "money": 10,
           "people": -10,
-          "influence": null
+          "influence": 0
         }
       }
     },
@@ -79,12 +79,12 @@
       "description": "Offer to trade 10 people for 10 influence from any player who accepts.",
       "effect": {
         "self": {
-          "money": null,
+          "money": 0,
           "people": -10,
           "influence": 10
         },
         "others": {
-          "money": null,
+          "money": 0,
           "people": -10,
           "influence": 10
         }
@@ -99,12 +99,12 @@
         "self": {
           "money": -10,
           "people": 15,
-          "influence": null
+          "influence": 0
         },
         "others": {
           "money": -10,
           "people": 15,
-          "influence": null
+          "influence": 0
         }
       }
     },
@@ -115,12 +115,12 @@
       "description": "Trade 15 People to gain 10 Influence.",
       "effect": {
         "self": {
-          "money": null,
+          "money": 0,
           "people": -15,
           "influence": 10
         },
         "others": {
-          "money": null,
+          "money": 0,
           "people": -15,
           "influence": 10
         }

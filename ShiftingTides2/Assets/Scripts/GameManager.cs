@@ -19,18 +19,35 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private int maxPlayers = 4;
     [SerializeField] private GameObject playerPrefab;
 
+    public GameObject[] playerObjects;
+
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Start()
     {
-        
+        if (playerObjects == null || playerObjects.Length != maxPlayers)
+        {
+            playerObjects = new GameObject[maxPlayers];
+        }
     }
 
     public override void OnNetworkSpawn()
     {
+        if (SceneManager.GetActiveScene().name != "MainMenuScene")
+        {
+            return;
+        }
         // Keep only one subscription
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
     }
@@ -52,6 +69,11 @@ public class GameManager : NetworkBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
+        if (SceneManager.GetActiveScene().name != "MainMenuScene")
+        {
+            Debug.LogError("[GameManager] OnClientConnected called outside MainMenuScene. Skipping.");
+            return;
+        }
         Debug.Log($"[GameManager] Player {clientId} connected.");
 
         if (!IsServer)
@@ -127,6 +149,18 @@ public class GameManager : NetworkBehaviour
             Debug.LogWarning($"[GameManager] clientId {clientId} already exists in clientIds.");
         }
 
+        // Store the player instance in the playerObjects array
+        int playerIndex = player.GetComponent<NetworkPlayer>().playerIndex.Value;
+        if (playerIndex >= 0 && playerIndex < maxPlayers)
+        {
+            playerObjects[playerIndex] = playerInstance;
+            Debug.Log($"[GameManager] Player instance stored at index {playerIndex}");
+        }
+        else
+        {
+            Debug.LogError($"[GameManager] Invalid player index: {playerIndex}. Cannot store player instance.");
+        }
+
     }
 
     private void AssignGoalsToPlayers()
@@ -146,6 +180,27 @@ public class GameManager : NetworkBehaviour
             else
             {
                 Debug.LogError("[GameManager] Player either missing, no more unique goals or already assigned goal!");
+            }
+        }
+    }
+    public void InitializePlayersIfNeeded()
+    {
+        if (playerObjects == null || playerObjects.Length == 0)
+        {
+            Debug.Log("[GameManager] Reinitializing player objects in the new scene.");
+            playerObjects = new GameObject[maxPlayers];
+            for (int i = 0; i < maxPlayers; i++)
+            {
+                var playerNetworkObject = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.ConnectedClientsIds.ElementAt(i));
+                if (playerNetworkObject != null)
+                {
+                    playerObjects[i] = playerNetworkObject.gameObject;
+                    Debug.Log($"[GameManager] Player {i} reinitialized.");
+                }
+                else
+                {
+                    Debug.LogError($"[GameManager] Failed to find player object for client {i}.");
+                }
             }
         }
     }

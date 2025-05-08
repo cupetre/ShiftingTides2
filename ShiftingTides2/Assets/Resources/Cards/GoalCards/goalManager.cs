@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
+using Unity.Netcode;
 
 public class GoalManager : MonoBehaviour
 {
@@ -19,13 +20,15 @@ public class GoalManager : MonoBehaviour
 
     private HashSet<int> assignedGoalIndices = new HashSet<int>();
 
+    public GameObject goalCard;
+
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            StartCoroutine(LoadGoals()); // Initialize goal loading
+            if (!goalsLoaded) StartCoroutine(LoadGoals()); // Initialize goal loading
         }
         else
         {
@@ -124,5 +127,24 @@ public class GoalManager : MonoBehaviour
     public Goal GetPlayerGoal(ulong clientId)
     {
         return assignedGoals.TryGetValue(clientId, out Goal goal) ? goal : null;
+    }
+
+    public void CloseGoalCard()
+    {
+        // Close the goal card UI
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void CloseGoalCardServerRpc()
+    {
+        CloseGoalCard();
+        // Optionally, notify all clients to close their goal cards
+        CloseGoalCardClientRpc();
+    }
+
+    [ClientRpc]
+    public void CloseGoalCardClientRpc()
+    {
+        CloseGoalCard();
     }
 }

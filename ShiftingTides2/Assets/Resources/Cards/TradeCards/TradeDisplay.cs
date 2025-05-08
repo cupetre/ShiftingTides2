@@ -72,11 +72,11 @@ public class TradeDisplay : NetworkBehaviour
         tradeCard.SetActive(true);
         tradeDescription.text = assignedTrade.description;
 
-        HiddenCard assignedHidden = HiddenCardManager.Instance.GetRandomHiddenCard();
+        //HiddenCard assignedHidden = HiddenCardManager.Instance.GetRandomHiddenCard();
 
-        if(assignedHidden != null) {
-            tradeDescription.text += "...But" + assignedHidden.description;
-        }
+        //if(assignedHidden != null) {
+        //    tradeDescription.text += "...But" + assignedHidden.description;
+        //}
 
         Debug.Log($"[TradeDisplayManager] Trade Display initialized for player {playerIndex} with trade {assignedTrade}");
     }

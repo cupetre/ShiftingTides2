@@ -110,7 +110,14 @@ public class AudioManager : MonoBehaviour
         {
            audioSourceCorrIncorr.time = 1.0f; // Start from 1 second into the clip
         }
+        StartCoroutine(PlayVoteSound());
+    }
+
+    private IEnumerator PlayVoteSound()
+    {
         audioSourceCorrIncorr.Play();
+        yield return new WaitForSeconds(0.8f);
+        audioSourceCorrIncorr.Stop();
     }
 
     private IEnumerator AdjustHeartbeatVolume(AudioSource audioSource)
