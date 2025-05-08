@@ -81,14 +81,14 @@ public class TradeManager : MonoBehaviour
     //     return (index >= 0 && index < trades.Length) ? trades[index] : null;
     // }
 
-    public Trade GetRandomTradeIndex()
+    public Trade GetRandomTrade()
     {
         if (!tradesLoaded || trades == null) return null;
 
         // Assign a random trade
-        Trade randomIndex = trades[Random.Range(0, trades.Length)];
+        
 
-        return randomIndex;
+        return trades[Random.Range(0, trades.Length)];
     }
 
     public bool AreTradesLoaded()

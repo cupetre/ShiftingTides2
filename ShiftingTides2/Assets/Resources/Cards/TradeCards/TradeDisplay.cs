@@ -62,7 +62,7 @@ public class TradeDisplay : NetworkBehaviour
         }
 
         // Get the trade for the player
-        Trade assignedTrade = TradeManager.Instance.GetRandomTradeIndex();
+        Trade assignedTrade = TradeManager.Instance.GetRandomTrade();
 
         if (assignedTrade == null)
         {
@@ -74,6 +74,12 @@ public class TradeDisplay : NetworkBehaviour
         // tradeTitle.text = assignedTrade.title;
         tradeCard.SetActive(true);
         tradeDescription.text = assignedTrade.description;
+
+        HiddenCard assignedHidden = HiddenCardManager.Instance.GetRandomHiddenCard();
+
+        if(assignedHidden != null) {
+            tradeDescription.text += "...But" + assignedHidden.description;
+        }
 
         Debug.Log($"[TradeDisplayManager] Trade Display initialized for player {playerIndex} with trade {assignedTrade}");
     }
