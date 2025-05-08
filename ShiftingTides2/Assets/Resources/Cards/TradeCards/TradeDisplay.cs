@@ -39,7 +39,7 @@ public class TradeDisplay : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void displayTradeClientRpc(ulong targetClientId)
+    private void displayTradeClientRpc()
     {
 
         // Check if is the trade owner

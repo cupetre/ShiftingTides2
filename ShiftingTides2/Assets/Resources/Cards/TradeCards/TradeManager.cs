@@ -11,7 +11,7 @@ public class TradeManager : MonoBehaviour
     [System.Serializable]
     public class TradeArrayWrapper
     {
-        public Trade[] trades;
+        public Trade[] actions;
     }
 
     public Trade[] trades;
@@ -47,7 +47,7 @@ public class TradeManager : MonoBehaviour
             // Deserialize JSON data
             TradeArrayWrapper wrapper = JsonUtility.FromJson<TradeArrayWrapper>(jsonFile.text);
             //trades = JsonHelper.FromJson<Trade>(jsonFile.text);
-            trades = wrapper?.trades;
+            trades = wrapper?.actions;
             Debug.Log($"[TradeManager] Loaded {trades?.Length} trades");
             Debug.Log($"[TradeManager] Deserialized JSON: {JsonUtility.ToJson(trades, true)}");
 
