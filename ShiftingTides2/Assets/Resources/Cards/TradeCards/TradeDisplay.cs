@@ -39,7 +39,7 @@ public class TradeDisplay : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void displayTradeClientRpc(ulong targetClientId)
+    public void displayTradeClientRpc(ulong targetClientId, Trade assignedTrade)
     {
 
         // Check if is the trade owner
@@ -60,9 +60,6 @@ public class TradeDisplay : NetworkBehaviour
             Debug.LogError($"[TradeDisplayManager] Invalid player index: {playerIndex}. Cannot initialize trade display.");
             return;
         }
-
-        // Get the trade for the player
-        Trade assignedTrade = TradeManager.Instance.GetRandomTrade();
 
         if (assignedTrade == null)
         {

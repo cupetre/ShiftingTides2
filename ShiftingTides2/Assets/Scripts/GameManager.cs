@@ -8,7 +8,10 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
 
-    private HashSet<ulong> assignedClientIds = new HashSet<ulong>();
+    // NetworkVariable to store all client IDs
+    public NetworkVariable<List<ulong>> clientIds = new NetworkVariable<List<ulong>>(new List<ulong>(0),
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
     private int nextPlayerIndex = 0;
 
     private HashSet<int> assignedIndices = new HashSet<int>();
@@ -112,6 +115,18 @@ public class GameManager : NetworkBehaviour
             // Assign goals to players
             AssignGoalsToPlayers();
         }
+
+        // Add clientId to clientIds
+        if (!clientIds.Value.Contains(clientId))
+        {
+            clientIds.Value.Add(clientId);
+            Debug.Log($"[GameManager] Added clientId {clientId} to clientIds.");
+        }
+        else
+        {
+            Debug.LogWarning($"[GameManager] clientId {clientId} already exists in clientIds.");
+        }
+
     }
 
     private void AssignGoalsToPlayers()
