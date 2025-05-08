@@ -1,49 +1,103 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
-public class ResourceManager : MonoBehaviour
+using Unity.Netcode;
+public class ResourceManager : NetworkBehaviour
 {
-    public int money = 0;
-    public int people = 0;
-    public int influence = 0;
+    public NetworkList<int> money;
+    public NetworkList<int> people;
+    public NetworkList<float> influence;
+
+    public NetworkList<bool> loseList;
 
     public TextMeshProUGUI moneyCount;
     public TextMeshProUGUI peopleCount;
     public Slider influenceSlider;
     public TextMeshProUGUI influenceCount;
 
-    void Start()
+
+    private int playerIndex;
+    void Awake()
     {
-        moneyCount.text = "20";
-        peopleCount.text = "30";
+        money = new NetworkList<int>();
+        people = new NetworkList<int>();
+        influence = new NetworkList<float>();
+        loseList = new NetworkList<bool>();
     }
 
-    public void AddMoney(int amount)
+    public override void OnNetworkSpawn()
     {
-        money += amount;
+        if (IsServer)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                money.Add(50);
+                people.Add(50);
+                influence.Add(50f);
+                loseList.Add(false);
+            }
+        }
+
+        playerIndex = GetComponent<NetworkPlayer>().playerIndex.Value;
+
+        money.OnListChanged += OnResourceChanged;
+        people.OnListChanged += OnResourceChanged;
+        influence.OnListChanged += OnResourceChanged;
+
         UpdateUI();
     }
 
-    public void AddPeople(int amount)
+    private void OnResourceChanged(NetworkListEvent<int> changeEvent)
     {
-        people += amount;
         UpdateUI();
     }
-    public void AddInfluence(int amount)
+
+    private void OnResourceChanged(NetworkListEvent<float> changeEvent)
     {
-        influence = Mathf.Clamp(influence + amount, 0, 100);
         UpdateUI();
     }
+
+    [ServerRpc]
+    public void AddMoneyServerRpc(int playerIndex, int amount)
+    {
+        money[playerIndex] += amount;
+
+        if (money[playerIndex] == 0)
+        {
+            loseList[playerIndex] = true;
+        }
+    }
+
+    [ServerRpc]
+    public void AddPeopleServerRpc(int playerIndex, int amount)
+    {
+        people[playerIndex] += amount;
+        if (people[playerIndex] == 0)
+        {
+          loseList[playerIndex] = true;
+        }
+    }
+
+    [ServerRpc]
+    public void AddInfluenceServerRpc(int playerIndex, int amount)
+    {
+        influence[playerIndex] = Mathf.Clamp(influence[playerIndex] + amount, 0, 100);
+        if (influence[playerIndex] == 0)
+        {
+           loseList[playerIndex] = true;
+        }
+    }
+
 
     void UpdateUI()
     {
-        moneyCount.text = money.ToString();
-        peopleCount.text = people.ToString();
-        influenceSlider.value = influence;
+        moneyCount.text = money[playerIndex].ToString();
+        peopleCount.text = people[playerIndex].ToString();
+        influenceSlider.value = influence[playerIndex];
 
-        if (influenceCount != null) { 
-            influenceCount.text = influence + "%";
+        if (influenceCount != null)
+        {
+            influenceCount.text = influence[playerIndex] + "%";
         }
     }
 }
