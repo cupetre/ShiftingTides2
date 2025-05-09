@@ -33,12 +33,15 @@ public class RoundManager : NetworkBehaviour
     [ServerRpc]
     public void TurnEndedServerRpc(int playerIndex)
     {
-        playersTurnTracker[playerIndex] = true;
-        CheckNewRoundServerRpc();
+        if (!playersTurnTracker[playerIndex])
+        {
+            playersTurnTracker[playerIndex] = true;
+            CheckNewRound();
+        }
     }
 
-    [ServerRpc]
-    void CheckNewRoundServerRpc()
+
+    void CheckNewRound()
     {
         bool newTurn = true;
         foreach (var playedTurn in playersTurnTracker)

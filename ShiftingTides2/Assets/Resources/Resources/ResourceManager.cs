@@ -14,9 +14,14 @@ public class ResourceManager : NetworkBehaviour
     public TextMeshProUGUI peopleCount;
     public Slider influenceSlider;
     public TextMeshProUGUI influenceCount;
+    private GameObject playerObject;
+    private NetworkPlayer networkPlayer;
 
-
+    private ulong clientId;
     private int playerIndex;
+
+
+
     void Awake()
     {
         money = new NetworkList<int>();
@@ -25,6 +30,27 @@ public class ResourceManager : NetworkBehaviour
         loseList = new NetworkList<bool>();
     }
 
+    private void Start()
+    {
+        // Get the client ID and player index
+        clientId = NetworkManager.Singleton.LocalClientId;
+
+        // Find the player through the NetworkManager
+        playerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
+        if (playerObject == null)
+        {
+            Debug.LogError("[ResourceManager] Player object not found.");
+            return;
+        }
+        // Get the player index from the NetworkPlayer component
+        networkPlayer = playerObject.GetComponent<NetworkPlayer>();
+        if (networkPlayer == null)
+        {
+            Debug.LogError("[ResourceManager] NetworkPlayer component not found on player object.");
+            return;
+        }
+        playerIndex = networkPlayer.playerIndex.Value;
+    }
     public override void OnNetworkSpawn()
     {
         if (IsServer)
@@ -72,7 +98,7 @@ public class ResourceManager : NetworkBehaviour
         people[playerIndex] += amount;
         if (people[playerIndex] == 0)
         {
-          loseList[playerIndex] = true;
+            loseList[playerIndex] = true;
         }
     }
 
@@ -82,13 +108,15 @@ public class ResourceManager : NetworkBehaviour
         influence[playerIndex] = Mathf.Clamp(influence[playerIndex] + amount, 0, 100);
         if (influence[playerIndex] == 0)
         {
-           loseList[playerIndex] = true;
+            loseList[playerIndex] = true;
         }
     }
 
 
     void UpdateUI()
     {
+        if (!IsOwner && !IsClient) return;  // opcional, evita rodar no servidor ou outro cliente que não é dono
+
         moneyCount.text = money[playerIndex].ToString();
         peopleCount.text = people[playerIndex].ToString();
         influenceSlider.value = influence[playerIndex];
@@ -98,4 +126,5 @@ public class ResourceManager : NetworkBehaviour
             influenceCount.text = influence[playerIndex] + "%";
         }
     }
+
 }
