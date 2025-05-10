@@ -95,7 +95,7 @@ public class GoalDisplay : NetworkBehaviour
         if (assignedGoal.Target == Goal.TargetType.Self)
         {
 
-            if (assignedGoal.resources.money == curMoney || assignedGoal.resources.money == 0)
+            if (assignedGoal.resources.money <= curMoney || assignedGoal.resources.money == 0)
             {
                 progressText.text += "OK!\n";
             }
@@ -105,7 +105,7 @@ public class GoalDisplay : NetworkBehaviour
             }
 
 
-            if (assignedGoal.resources.people == curPeople || assignedGoal.resources.people == 0)
+            if (assignedGoal.resources.people <= curPeople || assignedGoal.resources.people == 0)
             {
                 progressText.text += "OK!\n";
             }
@@ -114,7 +114,7 @@ public class GoalDisplay : NetworkBehaviour
                 progressText.text += $"{curPeople}/{assignedGoal.resources.people}\n";
             }
 
-            if (assignedGoal.resources.influence == curInfluence || assignedGoal.resources.influence == 0)
+            if (assignedGoal.resources.influence <= curInfluence || assignedGoal.resources.influence == 0)
             {
                 progressText.text += "OK!\n";
             }

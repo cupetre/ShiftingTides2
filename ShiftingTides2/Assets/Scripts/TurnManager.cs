@@ -168,13 +168,13 @@ public class TurnManager : NetworkBehaviour
         Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
         players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * 2.0f, currScale.y * 2.0f, 1.0f);
 
-        while (usedTrades.Contains(trade.id))
-        {
-            Debug.LogError($"[TurnManager] Trade {trade.id} has already been used. Getting new one");
-            trade = tradeManager.GetRandomTrade();
-        }
+        // while (usedTrades.Contains(trade.id))
+        // {
+        //     Debug.LogError($"[TurnManager] Trade {trade.id} has already been used. Getting new one");
+        //     trade = tradeManager.GetRandomTrade();
+        // }
 
-        usedTrades.Append(trade.id);
+        // usedTrades.Append(trade.id);
         currentTrade.Value = trade.id;
         Debug.Log($"[TurnManager] Player {playerIndex} is starting trade {trade.title} (ID: {trade.id})");
 
@@ -194,6 +194,7 @@ public class TurnManager : NetworkBehaviour
         yield return new WaitForSeconds(5f);
 
         voteManager.DisplayVoteButtonsServerRpc();
+        voteManager.HideVoteButtonsClientRpc(clientIds[playerIndex]);
 
         // Wait for the vote to be completed or 40s to pass
         float waitTime = 40f;
@@ -210,7 +211,7 @@ public class TurnManager : NetworkBehaviour
         }
 
         Debug.Log($"[TurnManager] Vote completed or timed out. Elapsed time: {elapsedTime}");
-
+        voteManager.HideVoteButtonsClientRpc();
         // Process the trade after the vote
         StartCoroutine(ProcessTrade(playerIndex, trade));
     }
@@ -238,9 +239,9 @@ public class TurnManager : NetworkBehaviour
         // Apply self effects
         int yesVotesRatio = voteManager.playerYes.Count / numPlayers;
         ApplyTradeEffects(playerIndex,
-                        trade.effect.selfMoney*yesVotesRatio,
-                        trade.effect.selfPeople*yesVotesRatio,
-                        trade.effect.selfInfluence*yesVotesRatio,
+                        trade.effect.selfMoney * yesVotesRatio,
+                        trade.effect.selfPeople * yesVotesRatio,
+                        trade.effect.selfInfluence * yesVotesRatio,
                         isSelf: true);
 
         // Apply others effects
@@ -308,6 +309,16 @@ public class TurnManager : NetworkBehaviour
 
         Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
         players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x / 2.0f, currScale.y / 2.0f, 1.0f);
+        foreach (var player in players)
+        {
+            var networkPlayer = player.GetComponent<NetworkPlayer>();
+            if (networkPlayer != null)
+            {
+                networkPlayer.emotionState.Value = EmotionState.Neutral;
+            }
+        }
+
+
 
         StartTurnServerRpc();
     }

@@ -87,6 +87,7 @@ public class VoteManager : NetworkBehaviour
             Debug.Log($"[VoteManager] Player {playerIndex} (Client: {clientId}) voted NO");
         }
 
+        networkPlayer.emotionState.Value = vote ? EmotionState.Happy : EmotionState.Angry;
         HideVoteButtonsClientRpc(clientId);
     }
 
@@ -136,6 +137,12 @@ public class VoteManager : NetworkBehaviour
             yesButton.gameObject.SetActive(false);
             noButton.gameObject.SetActive(false);
         }
+    }
+    [ClientRpc]
+    public void HideVoteButtonsClientRpc()
+    {
+        yesButton.gameObject.SetActive(false);
+        noButton.gameObject.SetActive(false);
     }
 
     private void OnYesVotesChanged(int previousValue, int newValue)

@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15960c42cac2e5745879a505b870e0b0, type: 3}
+  m_Script: {fileID: 11500000, guid: c0bfbc1c86d5bb4568a7e068593270c2, type: 3}
   m_Name: Bearded
   m_EditorClassIdentifier: 
-  characterName: Bearded
+  characterName: bearded
   neutral: {fileID: 8189360570744880794, guid: a028219370606699f86167035e7e3b90, type: 3}
   smiling: {fileID: -5729618439933920660, guid: b063c14a1ba43ed0ca5e3ad8237b9bb1, type: 3}
   angry: {fileID: 2731697314123580133, guid: 6cf92af38779f6cde9a4be3ff2375621, type: 3}
