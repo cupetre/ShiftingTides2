@@ -43,12 +43,35 @@ public class GameManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (SceneManager.GetActiveScene().name != "MainMenuScene")
+        if (SceneManager.GetActiveScene().name == "GameStartScene")
         {
-            return;
+            SetPlayerPositions();
         }
         // Keep only one subscription
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+    }
+
+    public void SetPlayerPositions()
+    {
+        if (playerObjects == null || playerObjects.Length != maxPlayers)
+        {
+            Debug.LogError("[GameManager] Player objects array is not initialized or has incorrect size.");
+            return;
+        }
+        for (int i = 0; i < playerObjects.Length; i++)
+        {
+            if (playerObjects[i] != null)
+            {
+                Vector3[] positions = new Vector3[]
+                {
+                    new Vector3(-4f, -1f, 0f),   // Player 1
+                    new Vector3(-2f, -1f, 0f),  // Player 2
+                    new Vector3(0f, -1f, 0f),   // Player 3
+                    new Vector3(2f, -1f, 0f)    // Player 4
+                };
+                playerObjects[i].transform.position = positions[i];
+            }
+        }
     }
 
     public int AssignPlayerIndex()

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class GoalManager : MonoBehaviour
 {
@@ -131,7 +132,8 @@ public class GoalManager : MonoBehaviour
 
     public void CloseGoalCard()
     {
-        // Close the goal card UI
+        goalCard = GameObject.FindGameObjectWithTag("GoalCard");
+        goalCard.SetActive(false);
     }
 
     [ServerRpc(RequireOwnership = false)]

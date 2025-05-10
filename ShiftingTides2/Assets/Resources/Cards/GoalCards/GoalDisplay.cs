@@ -11,6 +11,7 @@ public class GoalDisplay : NetworkBehaviour
 
     private GameObject playerObject;
     private NetworkPlayer networkPlayer;
+    public GameObject goalCard;
 
     private ulong clientId;
     private int playerIndex;
@@ -70,5 +71,15 @@ public class GoalDisplay : NetworkBehaviour
         goalDescription.text = GoalManager.Instance.goals[assignedGoal].description;
 
         Debug.Log($"[GoalDisplayManager] Goal Display initialized for player {playerIndex} with goal {assignedGoal}");
+
+        StartCoroutine(CloseGoalCard());
+    }
+
+    private IEnumerator CloseGoalCard()
+    {
+        // Wait for 10 seconds
+        yield return new WaitForSeconds(10f);
+        // Close the goal card
+        goalCard.SetActive(false);
     }
 }
