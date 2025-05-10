@@ -71,12 +71,15 @@
     <Compile Include="Assets\Resources\Cards\GoalCards\JsonHelper.cs" />
     <Compile Include="Assets\Resources\Cards\Hidden Cards\HiddenCard.cs" />
     <Compile Include="Assets\Scripts\MainMenuUI.cs" />
+    <Compile Include="Assets\Scripts\RoundManager.cs" />
+    <Compile Include="Assets\Scripts\GoalAchieveManager.cs" />
     <Compile Include="Assets\Resources\Cards\GoalCards\GoalDisplay.cs" />
     <Compile Include="Assets\Resources\Cards\Hidden Cards\HiddenCardManager.cs" />
     <Compile Include="Assets\Resources\Votes\VoteManager.cs" />
     <Compile Include="Assets\Resources\Resources\ResourceManager.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Resources\Cards\TradeCards\TradeManager.cs" />
+    <Compile Include="Assets\Scripts\ScreenTransition.cs" />
     <Compile Include="Assets\Resources\Cards\GoalCards\Goal.cs" />
     <Compile Include="Assets\Scripts\NetworkPlayer.cs" />
     <Compile Include="Assets\Scripts\ConnectionManager.cs" />
