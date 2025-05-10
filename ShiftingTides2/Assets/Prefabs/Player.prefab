@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: -1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -74,10 +74,11 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   spriteRenderer: {fileID: 5608513270270991446}
   playerSprites:
-  - {fileID: -5729618439933920660, guid: b063c14a1ba43ed0ca5e3ad8237b9bb1, type: 3}
+  - {fileID: -6500036620551475185, guid: 040b23f20e8388016856fe99d9db7b0d, type: 3}
   - {fileID: 8189360570744880794, guid: a028219370606699f86167035e7e3b90, type: 3}
-  - {fileID: -8800096556689249875, guid: 711a700df47cb71159f0972ab3899267, type: 3}
-  - {fileID: 1162723100760442487, guid: 216a3f3c0b532acbabbfec4dc58c2a31, type: 3}
+  - {fileID: -9063143255990474730, guid: 0f08bcb997d65445385ca2e3d7a68f40, type: 3}
+  - {fileID: -4758504963729542879, guid: f47e1a7f895b3b073b568a0a07e54532, type: 3}
+  lostScreenTransition: {fileID: 0}
   playerIndex:
     m_InternalValue: -1
   goalIndex:
