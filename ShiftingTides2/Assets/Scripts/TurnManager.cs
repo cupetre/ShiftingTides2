@@ -125,13 +125,7 @@ public class TurnManager : NetworkBehaviour
                 Debug.LogError("[TurnManager] GoalManager instance not found.");
                 return;
             }
-            float goalCloseDelay = 10.0f;
-            float timeElapsed = 0.0f;
-            while (timeElapsed < goalCloseDelay)
-            {
-                timeElapsed += Time.deltaTime;
-            }
-            goalManager.CloseGoalCardServerRpc();
+
         }
         if (currentPlayer.Value == -1)
         {
@@ -167,6 +161,10 @@ public class TurnManager : NetworkBehaviour
         // Start the trade for the current player
         Trade trade = tradeManager.GetRandomTrade();
 
+        // Make the player in turn object larger
+        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
+        players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * 2.0f, currScale.y * 2.0f, 1.0f);
+
         while (usedTrades.Contains(trade.id)) {
             Debug.LogError($"[TurnManager] Trade {trade.id} has already been used. Getting new one");
             trade = tradeManager.GetRandomTrade();
@@ -185,6 +183,7 @@ public class TurnManager : NetworkBehaviour
         voteManager.yesVotes.Value = 0;
         voteManager.noVotes.Value = 0;
 
+        yield return new WaitForSeconds(10f);
         // Display the trade to the current player
         tradeDisplay.displayTradeClientRpc(clientIds[playerIndex], trade);
         // Wait for 5 seconds before displaying the vote buttons
@@ -297,7 +296,7 @@ public class TurnManager : NetworkBehaviour
         yield return new WaitForSeconds(5f);
 
         // Verify if the player has achieved their goal
-        FindObjectOfType<GoalAchieveManager>()
+        FindFirstObjectByType<GoalAchieveManager>()
             .CheckGoalServerRpc(playerIndex);
 
         // End the turn for the current player
@@ -311,6 +310,9 @@ public class TurnManager : NetworkBehaviour
         voteManager.voteDone.Value = false;
 
         Debug.Log($"[TurnManager] Player {currentPlayer.Value}'s turn started.");
+
+        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
+        players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x / 2.0f, currScale.y / 2.0f, 1.0f);
 
         StartTurnServerRpc();
     }

@@ -299,7 +299,7 @@ GameObject:
   - component: {fileID: 2601704329830680936}
   m_Layer: 0
   m_Name: GoalCard
-  m_TagString: Untagged
+  m_TagString: GoalCard
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -360,6 +360,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   goalTitle: {fileID: 601394936689787342}
   goalDescription: {fileID: 6043875368853216252}
+  goalCard: {fileID: 0}
 --- !u!1 &5435928255928328237
 GameObject:
   m_ObjectHideFlags: 0
