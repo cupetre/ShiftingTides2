@@ -87,11 +87,11 @@ public class ResourceManager : NetworkBehaviour
     {
         money[playerIndex] += amount;
 
-        // if (money[playerIndex].Value == 0)
-        // {
+        if (money[playerIndex].Value == 0)
+        {
             loseList[playerIndex] = true;
             callLoseScene(playerIndex);
-        // }
+        }
     }
 
     [ServerRpc]
