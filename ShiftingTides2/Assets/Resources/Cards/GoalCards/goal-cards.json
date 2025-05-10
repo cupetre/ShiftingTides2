@@ -40,19 +40,6 @@
           "target": "self"
         },
         {
-          "id": 4,
-          "type": "all_count",
-          "title": "The Great Collapse",
-          "description": "Make all three opponents drop below 20 Influence.",
-          "resources": {
-            "money": 0,
-            "people": 0,
-            "influence": 20
-          },
-          "rounds": 0,
-          "target": "opponents"
-        },
-        {
           "id": 5,
           "type": "achieve",
           "title": "The Vault Keeper",
@@ -64,19 +51,6 @@
           },
           "rounds": 0,
           "target": "self"
-        },
-        {
-          "id": 6,
-          "type": "all_count",
-          "title": "The Great Collapse",
-          "description": "Make all three opponents drop below 20 Money.",
-          "resources": {
-            "money": 20,
-            "people": 0,
-            "influence": 0
-          },
-          "rounds": 0,
-          "target": "opponents"
         },
         {
           "id": 7,
