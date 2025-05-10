@@ -43,7 +43,7 @@ public class ScreenTransition : NetworkBehaviour
         transitionImage.color = colorImage;
         transitionText.color = colorText;
 
-        StartCoroutine(LeaveGame());
+       
     }
 
     private IEnumerator FadeOutCoroutine()
@@ -81,10 +81,17 @@ public class ScreenTransition : NetworkBehaviour
 
     public void SetPlayerLost(bool lost, int targetPlayerIndex)
     {
-        isPlayerLost = lost;
         int playerIndex = targetPlayerIndex+1;
         transitionText.text = "Player " + playerIndex + "lost";
-        if (!isPlayerLost) transitionText.text = "Player " + targetPlayerIndex + 1 + " won";
         if (transitionImage != null && transitionText != null) StartCoroutine(FadeInCoroutine());
+        if (lost)  StartCoroutine(LeaveGame());
+        else StartCoroutine(FadeOutCoroutine());
+    }
+
+    public void SetPlayerWon(int targetPlayerIndex) {
+        int playerIndex = targetPlayerIndex+1;
+        transitionText.text = "Player " + targetPlayerIndex + " won";
+        if (transitionImage != null && transitionText != null) StartCoroutine(FadeInCoroutine());
+         StartCoroutine(LeaveGame());
     }
 }

@@ -98,7 +98,7 @@ public class NetworkPlayer : NetworkBehaviour
             if (spriteRenderer != null)
             {
                 spriteRenderer.enabled = false;
-                lostScreenTransition.SetPlayerLost(false, targetPlayerIndex);
+                lostScreenTransition.SetPlayerLost(true, targetPlayerIndex);
                 Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} sprite hidden on client.");
                 return;
             }

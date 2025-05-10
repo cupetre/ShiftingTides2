@@ -6,52 +6,40 @@
       "title": "Political Favor",
       "description": "For every player that offers 10 people they get 15 of influence.",
       "effect": {
-        "self": {
-          "money": 0,
-          "people": -10,
-          "influence": 15
-        },
-        "others": {
-          "money": 0,
-          "people": -10,
-          "influence": 15
-        }
+        "selfMoney": 0,
+        "selfPeople": 10,
+        "selfInfluence": -15,
+        "othersMoney": 0,
+        "othersPeople": -10,
+        "othersInfluence": 15
       }
     },
     {
       "id": 2,
       "type": "normal",
       "title": "Fund the Movement",
-      "description": "Lose 10 Money, gain 15 People.",
+      "description": "Player that offers 10 Money to the trader, gain 15 People from trader",
       "effect": {
-        "self": {
-          "money": -10,
-          "people": 15,
-          "influence": 0
-        },
-        "others": {
-          "money": -10,
-          "people": 15,
-          "influence": 0
-        }
+        "selfMoney": 10,
+        "selfPeople": -15,
+        "selfInfluence": 0,
+        "othersMoney": 10,
+        "othersPeople": -15,
+        "othersInfluence": 0
       }
     },
     {
       "id": 3,
       "type": "normal",
       "title": "Resource Swap",
-      "description": "Offer to trade 10 Influence for 10 Money from any player who accepts.",
+      "description": "Offer to trade 10 Influence from you for 10 Money from any player who accepts.",
       "effect": {
-        "self": {
-          "money": 10,
-          "people": 0,
-          "influence": -10
-        },
-        "others": {
-          "money": 10,
-          "people": 0,
-          "influence": -10
-        }
+        "selfMoney": 10,
+        "selfPeople": 0,
+        "selfInfluence": -10,
+        "othersMoney": -10,
+        "othersPeople": 0,
+        "othersInfluence": 10
       }
     },
     {
@@ -60,16 +48,12 @@
       "title": "Resource Swap",
       "description": "Offer to trade 10 people for 10 Money from any player who accepts.",
       "effect": {
-        "self": {
-          "money": 10,
-          "people": -10,
-          "influence": 0
-        },
-        "others": {
-          "money": 10,
-          "people": -10,
-          "influence": 0
-        }
+        "selfMoney": 10,
+        "selfPeople": -10,
+        "selfInfluence": 0,
+        "othersMoney": -10,
+        "othersPeople": 10,
+        "othersInfluence": 0
       }
     },
     {
@@ -78,34 +62,26 @@
       "title": "Resource Swap",
       "description": "Offer to trade 10 people for 10 influence from any player who accepts.",
       "effect": {
-        "self": {
-          "money": 0,
-          "people": -10,
-          "influence": 10
-        },
-        "others": {
-          "money": 0,
-          "people": -10,
-          "influence": 10
-        }
+        "selfMoney": 0,
+        "selfPeople": -10,
+        "selfInfluence": 10,
+        "othersMoney": 0,
+        "othersPeople": 10,
+        "othersInfluence": -10
       }
     },
     {
       "id": 6,
       "type": "normal",
       "title": "Charity Campaign",
-      "description": "Lose 10 Money to gain 15 People.",
+      "description": "Lose 10 Money to gain 15 People from players who accept trade",
       "effect": {
-        "self": {
-          "money": -10,
-          "people": 15,
-          "influence": 0
-        },
-        "others": {
-          "money": -10,
-          "people": 15,
-          "influence": 0
-        }
+        "selfMoney": -10,
+        "selfPeople": 15,
+        "selfInfluence": 0,
+        "othersMoney": 10,
+        "othersPeople": -15,
+        "othersInfluence": 0
       }
     },
     {
@@ -114,16 +90,12 @@
       "title": "Influencer Partnership",
       "description": "Trade 15 People to gain 10 Influence.",
       "effect": {
-        "self": {
-          "money": 0,
-          "people": -15,
-          "influence": 10
-        },
-        "others": {
-          "money": 0,
-          "people": -15,
-          "influence": 10
-        }
+        "selfMoney": 0,
+        "selfPeople": -15,
+        "selfInfluence": 10,
+        "othersMoney": 0,
+        "othersPeople": 15,
+        "othersInfluence": -10
       }
     }
   ]

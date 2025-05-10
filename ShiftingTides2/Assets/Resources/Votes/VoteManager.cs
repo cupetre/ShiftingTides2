@@ -6,19 +6,23 @@ using System.Collections.Generic;
 
 public class VoteManager : NetworkBehaviour
 {
-    public NetworkVariable<int> yesVotes = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone);
-    public NetworkVariable<int> noVotes = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone);
+    public NetworkVariable<int> yesVotes = new NetworkVariable<int>(0);
+    public NetworkVariable<int> noVotes = new NetworkVariable<int>(0);
+    public NetworkVariable<bool> voteDone = new NetworkVariable<bool>(false);
 
-    public List<NetworkVariable<int>> playerYes = new List<NetworkVariable<int>>();
-    public List<NetworkVariable<int>> playerNo = new List<NetworkVariable<int>>();
+    public NetworkList<int> playerYes;
+    public NetworkList<int> playerNo;
 
     public Button yesButton;
     public Button noButton;
-
-    private GameObject audioManagerObject;
     private AudioManager audioManager;
 
-    public NetworkVariable<bool> voteDone = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone);
+    private void Awake()
+    {
+
+        playerYes = new NetworkList<int>();
+        playerNo = new NetworkList<int>();
+    }
 
     void Start()
     {
@@ -40,41 +44,50 @@ public class VoteManager : NetworkBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        yesVotes.OnValueChanged -= OnYesVotesChanged;
-        noVotes.OnValueChanged -= OnNoVotesChanged;
-    }
-
     [ServerRpc(RequireOwnership = false)]
-    public void CastVoteServerRpc(bool vote)
+    public void CastVoteServerRpc(bool vote, ServerRpcParams rpcParams = default)
     {
+        if (voteDone.Value) return;
+
+        ulong clientId = rpcParams.Receive.SenderClientId;
+
+        // Obtém o playerIndex da mesma forma que você faz normalmente
+        NetworkObject playerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+        if (playerObject == null)
+        {
+            Debug.LogError("[VoteManager] Player object not found for clientId: " + clientId);
+            return;
+        }
+
+        NetworkPlayer networkPlayer = playerObject.GetComponent<NetworkPlayer>();
+        if (networkPlayer == null)
+        {
+            Debug.LogError("[VoteManager] NetworkPlayer component not found");
+            return;
+        }
+
+        int playerIndex = networkPlayer.playerIndex.Value;
+
         if (vote)
         {
             yesVotes.Value++;
-            // Add player index not clientId
-            ulong clientId = NetworkManager.Singleton.LocalClient.ClientId;
-            // Find player index through player objects on network
-            GameManager gameManager = FindFirstObjectByType<GameManager>();
-            int playerIndex = gameManager.clientIds.Value.IndexOf(clientId);
-            if (playerIndex >= 0 && playerIndex < 4)
+            if (!playerYes.Contains(playerIndex))
             {
-                playerYes.Add(new NetworkVariable<int>(playerIndex, NetworkVariableReadPermission.Everyone));
-                Debug.Log($"[VoteManager] Player {playerIndex} voted YES");
+                playerYes.Add(playerIndex);
             }
+            Debug.Log($"[VoteManager] Player {playerIndex} (Client: {clientId}) voted YES");
         }
         else
         {
             noVotes.Value++;
-            ulong clientId = NetworkManager.Singleton.LocalClient.ClientId;
-            GameManager gameManager = FindFirstObjectByType<GameManager>();
-            int playerIndex = gameManager.clientIds.Value.IndexOf(clientId);
-            if (playerIndex >= 0 && playerIndex < 4)
+            if (!playerNo.Contains(playerIndex))
             {
-                playerNo.Add(new NetworkVariable<int>(playerIndex, NetworkVariableReadPermission.Everyone));
-                Debug.Log($"[VoteManager] Player {playerIndex} voted NO");
+                playerNo.Add(playerIndex);
             }
+            Debug.Log($"[VoteManager] Player {playerIndex} (Client: {clientId}) voted NO");
         }
+
+        HideVoteButtonsClientRpc(clientId);
     }
 
     private void VoteYes()
@@ -84,9 +97,6 @@ public class VoteManager : NetworkBehaviour
             audioManager.PlayCorrIncorrSound(true);
         }
         CastVoteServerRpc(true);
-
-        yesButton.gameObject.SetActive(false);
-        noButton.gameObject.SetActive(false);
     }
 
     private void VoteNo()
@@ -96,9 +106,36 @@ public class VoteManager : NetworkBehaviour
             audioManager.PlayCorrIncorrSound(false);
         }
         CastVoteServerRpc(false);
+    }
 
-        yesButton.gameObject.SetActive(false);
-        noButton.gameObject.SetActive(false);
+    [ServerRpc(RequireOwnership = false)]
+    public void DisplayVoteButtonsServerRpc()
+    {
+
+        yesVotes.Value = 0;
+        noVotes.Value = 0;
+        voteDone.Value = false;
+        playerYes.Clear();
+        playerNo.Clear();
+
+        DisplayVoteButtonsClientRpc();
+    }
+
+    [ClientRpc]
+    public void DisplayVoteButtonsClientRpc()
+    {
+        yesButton.gameObject.SetActive(true);
+        noButton.gameObject.SetActive(true);
+    }
+
+    [ClientRpc]
+    public void HideVoteButtonsClientRpc(ulong clientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId == clientId)
+        {
+            yesButton.gameObject.SetActive(false);
+            noButton.gameObject.SetActive(false);
+        }
     }
 
     private void OnYesVotesChanged(int previousValue, int newValue)
@@ -111,29 +148,9 @@ public class VoteManager : NetworkBehaviour
         Debug.Log($"No votes changed from {previousValue} to {newValue}");
     }
 
-    // Function to display vote buttons
-    [ServerRpc(RequireOwnership = false)]
-    public void DisplayVoteButtonsServerRpc()
+    private void OnDestroy()
     {
-        DisplayVoteButtonsClientRpc();
-    }
-
-    [ClientRpc]
-    public void DisplayVoteButtonsClientRpc()
-    {
-        // Show buttons to all clients
-        yesButton.gameObject.SetActive(true);
-        noButton.gameObject.SetActive(true);
-    }
-
-    [ClientRpc]
-    public void HideVoteButtonsClientRpc(ulong clientId)
-    {
-        // Hide buttons for the client who voted
-        if (NetworkManager.Singleton.LocalClientId == clientId)
-        {
-            yesButton.gameObject.SetActive(false);
-            noButton.gameObject.SetActive(false);
-        }
+        yesVotes.OnValueChanged -= OnYesVotesChanged;
+        noVotes.OnValueChanged -= OnNoVotesChanged;
     }
 }

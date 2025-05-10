@@ -19,6 +19,8 @@ public class TurnManager : NetworkBehaviour
     private VoteManager voteManager;
     private ResourceManager resourceManager;
 
+    private RoundManager roundManager;
+
     private Trade[] trades;
     private GameObject tradeCard;
     private GameObject voteButtons;
@@ -38,6 +40,7 @@ public class TurnManager : NetworkBehaviour
         // Find trade manager and game manager instances in the scene
         tradeManager = FindFirstObjectByType<TradeManager>();
         gameManager = FindFirstObjectByType<GameManager>();
+        roundManager = FindFirstObjectByType<RoundManager>();
         // Find trade display script inside the same object
         tradeDisplay = FindFirstObjectByType<TradeDisplay>();
         // Find vote manager instance in the scene
@@ -105,7 +108,7 @@ public class TurnManager : NetworkBehaviour
 
     void FixedUpdate()
     {
-        
+
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -165,7 +168,8 @@ public class TurnManager : NetworkBehaviour
         Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
         players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * 2.0f, currScale.y * 2.0f, 1.0f);
 
-        while (usedTrades.Contains(trade.id)) {
+        while (usedTrades.Contains(trade.id))
+        {
             Debug.LogError($"[TurnManager] Trade {trade.id} has already been used. Getting new one");
             trade = tradeManager.GetRandomTrade();
         }
@@ -215,81 +219,72 @@ public class TurnManager : NetworkBehaviour
     {
         Debug.Log($"[TurnManager] Processing trade for player {playerIndex} with trade {trade.title}");
 
-        // Check which player voted yes or no
-        int yesVotes = voteManager.yesVotes.Value;
-        int noVotes = voteManager.noVotes.Value;
-        Debug.Log($"[TurnManager] Number of votes: Yes: {yesVotes}, No: {noVotes}");
-
-        int[] playerYes = voteManager.playerYes.Select(v => v.Value).ToArray();
-        int[] playerNo = voteManager.playerNo.Select(v => v.Value).ToArray();
-
+        // Get vote data 
+        int[] playerYes = new int[voteManager.playerYes.Count];
+        for (int i = 0; i < voteManager.playerYes.Count; i++)
+        {
+            playerYes[i] = voteManager.playerYes[i];
+        }
         Debug.Log($"[TurnManager] Players who voted yes: {string.Join(", ", playerYes)}");
-        Debug.Log($"[TurnManager] Players who voted no: {string.Join(", ", playerNo)}");
 
-        string tradeType = trade.type;
-
-        if (tradeType == "normal")
+        // Get resource manager
+        resourceManager = FindFirstObjectByType<ResourceManager>();
+        if (resourceManager == null)
         {
-            int moneySelf = trade.effect.selfMoney;
-            int moneyOther = trade.effect.othersMoney;
-            int peopleSelf = trade.effect.selfPeople;
-            int peopleOther = trade.effect.othersPeople;
-            int influenceSelf = trade.effect.selfInfluence;
-            int influenceOther = trade.effect.othersInfluence;
-
-            // Apply the trade effects
-            resourceManager = FindFirstObjectByType<ResourceManager>();
-            if (resourceManager == null)
-            {
-                Debug.LogError("[TurnManager] ResourceManager instance not found.");
-                yield break;
-            }
-
-            if (moneySelf != 0)
-            {
-                resourceManager.AddMoneyServerRpc(playerIndex, moneySelf);
-                Debug.Log($"[TurnManager] Player {playerIndex} received {moneySelf} money.");
-                for (int i = 0; i < playerYes.Length; i++)
-                {
-                    resourceManager.AddMoneyServerRpc(playerYes[i], moneyOther);
-                    Debug.Log($"[TurnManager] Player {playerYes[i]} received {moneyOther} money.");
-                }
-            }
-
-            if (peopleSelf != 0)
-            {
-                resourceManager.AddPeopleServerRpc(playerIndex, peopleSelf);
-                Debug.Log($"[TurnManager] Player {playerIndex} received {peopleSelf} people.");
-                for (int i = 0; i < playerYes.Length; i++)
-                {
-                    resourceManager.AddPeopleServerRpc(playerYes[i], peopleOther);
-                    Debug.Log($"[TurnManager] Player {playerYes[i]} received {peopleOther} people.");
-                }
-            }
-
-            if (influenceSelf != 0)
-            {
-                resourceManager.AddInfluenceServerRpc(playerIndex, influenceSelf);
-                Debug.Log($"[TurnManager] Player {playerIndex} received {influenceSelf} influence.");
-                for (int i = 0; i < playerYes.Length; i++)
-                {
-                    resourceManager.AddInfluenceServerRpc(playerYes[i], influenceOther);
-                    Debug.Log($"[TurnManager] Player {playerYes[i]} received {influenceOther} influence.");
-                }
-            }
-        }
-        else
-        {
-             Debug.LogError($"[TurnManager] Unknown trade type: {tradeType}");
+            Debug.LogError("[TurnManager] ResourceManager instance not found.");
+            yield break;
         }
 
+        // Apply self effects
+        int yesVotesRatio = voteManager.playerYes.Count / numPlayers;
+        ApplyTradeEffects(playerIndex,
+                        trade.effect.selfMoney*yesVotesRatio,
+                        trade.effect.selfPeople*yesVotesRatio,
+                        trade.effect.selfInfluence*yesVotesRatio,
+                        isSelf: true);
+
+        // Apply others effects
+        foreach (int otherPlayerId in playerYes)
+        {
+            if (otherPlayerId != playerIndex && otherPlayerId >= 0 && otherPlayerId < numPlayers)
+            {
+                ApplyTradeEffects(otherPlayerId,
+                                trade.effect.othersMoney,
+                                trade.effect.othersPeople,
+                                trade.effect.othersInfluence,
+                                isSelf: false);
+            }
+        }
 
         // End the turn
         StartCoroutine(EndTurnCoroutine(playerIndex));
         tradeInProgress = false;
-        Debug.Log($"[TurnManager] Ending trade for player {playerIndex}");
+        Debug.Log($"[TurnManager] Trade completed for player {playerIndex}");
+        yield return null;
     }
 
+    private void ApplyTradeEffects(int playerId, int money, int people, int influence, bool isSelf)
+    {
+        string target = isSelf ? "SELF" : "OTHER";
+
+        if (money != 0)
+        {
+            resourceManager.AddMoneyServerRpc(playerId, money);
+            Debug.Log($"[TurnManager] {target} Player {playerId} received {money} money. (Current: {resourceManager.GetMoney(playerId)})");
+        }
+
+        if (people != 0)
+        {
+            resourceManager.AddPeopleServerRpc(playerId, people);
+            Debug.Log($"[TurnManager] {target} Player {playerId} received {people} people. (Current: {resourceManager.GetPeople(playerId)})");
+        }
+
+        if (influence != 0)
+        {
+            resourceManager.AddInfluenceServerRpc(playerId, influence);
+            Debug.Log($"[TurnManager] {target} Player {playerId} received {influence} influence. (Current: {resourceManager.GetInfluence(playerId)})");
+        }
+    }
     private IEnumerator EndTurnCoroutine(int playerIndex)
     {
         // Wait for the trade to be processed
@@ -298,6 +293,7 @@ public class TurnManager : NetworkBehaviour
         // Verify if the player has achieved their goal
         FindFirstObjectByType<GoalAchieveManager>()
             .CheckGoalServerRpc(playerIndex);
+        roundManager.TurnEndedServerRpc(playerIndex);
 
         // End the turn for the current player
         Debug.Log($"[TurnManager] Ending turn for player {playerIndex}");
@@ -308,7 +304,6 @@ public class TurnManager : NetworkBehaviour
         currentTrade.Value = -1; // Reset trade index for the next round
 
         voteManager.voteDone.Value = false;
-
         Debug.Log($"[TurnManager] Player {currentPlayer.Value}'s turn started.");
 
         Vector3 currScale = players[playerIndex].gameObject.transform.localScale;

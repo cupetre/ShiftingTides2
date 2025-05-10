@@ -93,7 +93,7 @@ public class GoalAchieveManager : NetworkBehaviour
             achieved[playerIndex] = true;
             Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal {goal.title} (ID:{goal.id})");
             // Add some trigger UI later.
-            screenTransition.SetPlayerLost(false, playerIndex);
+            screenTransition.SetPlayerWon(playerIndex);
         }
     }
 }
