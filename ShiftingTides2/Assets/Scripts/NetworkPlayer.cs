@@ -5,7 +5,7 @@ public class NetworkPlayer : NetworkBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Sprite[] playerSprites; // 4 sprites
-
+    [SerializeField] private ScreenTransition lostScreenTransition;
     private bool hasSpawned = false;
 
     public NetworkVariable<int> playerIndex = new NetworkVariable<int>(-1,
@@ -78,4 +78,23 @@ public class NetworkPlayer : NetworkBehaviour
     {
         playerIndex.OnValueChanged -= OnPlayerIndexChanged; // Cleanup
     }
+
+    [ClientRpc]
+    public void HandleLostClientRpc(int targetPlayerIndex)
+    {
+
+        lostScreenTransition = FindObjectOfType<ScreenTransition>();
+        if (playerIndex.Value == targetPlayerIndex)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = false;
+                lostScreenTransition.SetPlayerLost(false, targetPlayerIndex);
+                Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} sprite hidden on client.");
+                return;
+            }
+        }
+        lostScreenTransition.SetPlayerLost(false, targetPlayerIndex);
+    }
+
 }

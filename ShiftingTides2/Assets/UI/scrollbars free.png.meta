@@ -284,7 +284,14 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      scrollbars free_0: 7777225603549389319
+      scrollbars free_1: -2916072730813909472
+      scrollbars free_2: -6850162776245715860
+      scrollbars free_3: -2348595379771797524
+      scrollbars free_4: 6557853000756245369
+      scrollbars free_5: -5013488596323959759
+      scrollbars free_6: 3989891197421217170
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

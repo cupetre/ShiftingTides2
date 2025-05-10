@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
+using System;
 public class ResourceManager : NetworkBehaviour
 {
     public NetworkList<int> money;
@@ -86,10 +87,11 @@ public class ResourceManager : NetworkBehaviour
     {
         money[playerIndex] += amount;
 
-        if (money[playerIndex] == 0)
-        {
+        // if (money[playerIndex].Value == 0)
+        // {
             loseList[playerIndex] = true;
-        }
+            callLoseScene(playerIndex);
+        // }
     }
 
     [ServerRpc]
@@ -99,6 +101,7 @@ public class ResourceManager : NetworkBehaviour
         if (people[playerIndex] == 0)
         {
             loseList[playerIndex] = true;
+             callLoseScene(playerIndex);
         }
     }
 
@@ -109,6 +112,7 @@ public class ResourceManager : NetworkBehaviour
         if (influence[playerIndex] == 0)
         {
             loseList[playerIndex] = true;
+             callLoseScene(playerIndex);
         }
     }
 
@@ -140,6 +144,12 @@ public class ResourceManager : NetworkBehaviour
     public int GetInfluence(int playerIndex)
     {
         return Mathf.RoundToInt(influence[playerIndex]);
+    }
+
+    public void callLoseScene(int targetPlayerIndex)
+    {
+        networkPlayer.HandleLostClientRpc(targetPlayerIndex);   
+
     }
 
 }
