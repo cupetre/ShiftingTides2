@@ -3,7 +3,9 @@ using UnityEngine.UI;
 using System.Collections;
 using TMPro;
 using UnityEngine.SceneManagement;
-public class ScreenTransition : MonoBehaviour
+using Unity.Netcode;
+
+public class ScreenTransition : NetworkBehaviour
 {
     [SerializeField] private Image transitionImage;
     [SerializeField] private TextMeshProUGUI transitionText;
@@ -15,12 +17,6 @@ public class ScreenTransition : MonoBehaviour
         if (transitionImage != null && transitionText != null)
             transitionImage.gameObject.SetActive(false);
         transitionText.gameObject.SetActive(false);
-    }
-
-    public void StartFadeIn()
-    {
-        if (transitionImage != null && transitionText != null) StartCoroutine(FadeInCoroutine());
-
     }
 
     private IEnumerator FadeInCoroutine()
@@ -46,6 +42,8 @@ public class ScreenTransition : MonoBehaviour
         colorText.a = 1f;
         transitionImage.color = colorImage;
         transitionText.color = colorText;
+
+        StartCoroutine(LeaveGame());
     }
 
     private IEnumerator FadeOutCoroutine()
@@ -72,22 +70,21 @@ public class ScreenTransition : MonoBehaviour
         transitionText.gameObject.SetActive(false);
     }
 
+    private IEnumerator LeaveGame()
+    {
+        // Wait 10 seconds before leaving the game
+        yield return new WaitForSeconds(10f);
+        NetworkManager.Singleton.Shutdown();
+        // Load the Main Menu Scene
+        SceneManager.LoadScene("MainMenuScene");
+    }
+
     public void SetPlayerLost(bool lost, int targetPlayerIndex)
     {
         isPlayerLost = lost;
-        transitionText.text = "Player " + targetPlayerIndex + 1 + "lost";
-        if (isPlayerLost)
-        {
-            StartFadeIn();
-            NetworkManager.Singleton.Shutdown();
-            // Load the Main Menu Scene
-            SceneManager.LoadScene("MainMenuScene");
-
-        }
-        else
-        {
-            StartFadeIn();
-            StartCoroutine(FadeOutCoroutine());
-        }
+        int playerIndex = targetPlayerIndex+1;
+        transitionText.text = "Player " + playerIndex + "lost";
+        if (!isPlayerLost) transitionText.text = "Player " + targetPlayerIndex + 1 + " won";
+        if (transitionImage != null && transitionText != null) StartCoroutine(FadeInCoroutine());
     }
 }

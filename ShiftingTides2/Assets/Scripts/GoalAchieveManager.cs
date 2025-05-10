@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using TMPro;
 
 public class GoalAchieveManager : NetworkBehaviour
 {
@@ -14,11 +15,15 @@ public class GoalAchieveManager : NetworkBehaviour
     private GameManager gameManager;
     private GoalManager goalManager;
 
+    [SerializeField] private GameObject LostCut;
+    private ScreenTransition screenTransition;
+
     void Awake()
     {
-        resourceManager = FindObjectOfType<ResourceManager>();
-        gameManager     = FindObjectOfType<GameManager>();
-        goalManager     = FindObjectOfType<GoalManager>();
+        resourceManager = FindFirstObjectByType<ResourceManager>();
+        gameManager     = FindFirstObjectByType<GameManager>();
+        goalManager     = FindFirstObjectByType<GoalManager>();
+        screenTransition = LostCut.GetComponent<ScreenTransition>();
     }
 
     public override void OnNetworkSpawn()
@@ -28,6 +33,9 @@ public class GoalAchieveManager : NetworkBehaviour
             // Initialize with 4 false values 
             for (int i = 0; i < 4; i++) achieved.Add(false);
         }
+
+        // For testing purposes
+        // screenTransition.SetPlayerLost(false, 0);
     }
 
     // Call this from the TurnManager at the end of the turn
@@ -85,6 +93,7 @@ public class GoalAchieveManager : NetworkBehaviour
             achieved[playerIndex] = true;
             Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal {goal.title} (ID:{goal.id})");
             // Add some trigger UI later.
+            screenTransition.SetPlayerLost(false, playerIndex);
         }
     }
 }
