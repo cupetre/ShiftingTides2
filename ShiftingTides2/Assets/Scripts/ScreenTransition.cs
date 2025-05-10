@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using TMPro;
+using UnityEngine.SceneManagement;
 public class ScreenTransition : MonoBehaviour
 {
     [SerializeField] private Image transitionImage;
@@ -57,27 +58,31 @@ public class ScreenTransition : MonoBehaviour
         {
             t += Time.deltaTime;
             colorImage.a = Mathf.Lerp(1f, 0f, t / fadeOutDuration);
-            colorText.a = Mathf.Lerp(1f, 0f, t / fadeOutDuration);  
+            colorText.a = Mathf.Lerp(1f, 0f, t / fadeOutDuration);
             transitionImage.color = colorImage;
             transitionText.color = colorText;
             yield return null;
         }
 
-        colorImage.a = 0f;  
+        colorImage.a = 0f;
         colorText.a = 0f;
         transitionImage.color = colorImage;
         transitionText.color = colorText;
         transitionImage.gameObject.SetActive(false);
-        transitionText.gameObject.SetActive(false); 
+        transitionText.gameObject.SetActive(false);
     }
 
     public void SetPlayerLost(bool lost, int targetPlayerIndex)
     {
         isPlayerLost = lost;
-        transitionText.text = "Player " +  targetPlayerIndex+1 + "lost";
+        transitionText.text = "Player " + targetPlayerIndex + 1 + "lost";
         if (isPlayerLost)
         {
             StartFadeIn();
+            NetworkManager.Singleton.Shutdown();
+            // Load the Main Menu Scene
+            SceneManager.LoadScene("MainMenuScene");
+
         }
         else
         {
