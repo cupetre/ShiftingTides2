@@ -674,11 +674,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 3a9aa77e-a440-4153-96c5-b2f23ec719f9
+  cloudProjectId: a816267e-b5ec-4f6e-a612-659047690248
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: ShiftingTides2
-  organizationId: dacupetre
+  organizationId: dudatess
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
