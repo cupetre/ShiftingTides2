@@ -74,14 +74,14 @@ public class GoalAchieveManager : NetworkBehaviour
         if (goal.Target == Goal.TargetType.Self)
         {
             // Type achieve (can be achieved at any time)
-            if (goal.Type == "achieve")
+            if (goal.type == "achieve")
             {
                 goalMet = curMoney >= goal.resources.money
                     && curInfluence >= goal.resources.influence
                     && curPeople >= goal.resources.people;
             }
             // Type rounds (must be achieved in a certain round)
-            else if (goal.Type == "rounds")
+            else if (goal.type == "rounds")
             {
                 if (currentRound <= goal.rounds)
                 {

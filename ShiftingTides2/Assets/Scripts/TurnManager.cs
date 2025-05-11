@@ -291,6 +291,9 @@ public class TurnManager : NetworkBehaviour
         // Wait for the trade to be processed
         yield return new WaitForSeconds(5f);
 
+        // Verify if the player has lost
+        FindFirstObjectByType<ResourceManager>().CheckGoalTimeoutServerRpc(playerIndex);
+
         // Verify if the player has achieved their goal
         FindFirstObjectByType<GoalAchieveManager>()
             .CheckGoalServerRpc(playerIndex);

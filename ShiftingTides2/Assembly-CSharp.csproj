@@ -77,6 +77,7 @@
     <Compile Include="Assets\Resources\Cards\Hidden Cards\HiddenCard.cs" />
     <Compile Include="Assets\Scripts\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\RoundManager.cs" />
+    <Compile Include="Assets\Characters\Character.cs" />
     <Compile Include="Assets\Scripts\GoalAchieveManager.cs" />
     <Compile Include="Assets\Resources\Cards\GoalCards\GoalDisplay.cs" />
     <Compile Include="Assets\Resources\Cards\Hidden Cards\HiddenCardManager.cs" />

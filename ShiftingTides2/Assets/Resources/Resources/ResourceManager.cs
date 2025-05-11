@@ -116,6 +116,33 @@ public class ResourceManager : NetworkBehaviour
         }
     }
 
+    [ServerRpc]
+    public void CheckGoalTimeoutServerRpc(int playerIndex)
+    {
+        if (loseList[playerIndex]) return; 
+
+
+        var goalManager = FindFirstObjectByType<GoalManager>();
+        var gameManager = FindFirstObjectByType<GameManager>();
+        var playerObj = gameManager.playerObjects[playerIndex];
+        var netPlayer = playerObj.GetComponent<NetworkPlayer>();
+        var goal = goalManager.GetGoal(netPlayer.goalIndex.Value);
+
+        
+        if (goal != null && goal.type == "rounds") 
+        {
+            int currentRound = FindFirstObjectByType<RoundManager>().round.Value;
+            
+            
+            if (currentRound > goal.rounds) 
+            {
+                loseList[playerIndex] = true;
+                callLoseScene(playerIndex); 
+                Debug.Log($"[ResourceManager] Player {playerIndex} perdeu por tempo limite (rodada {goal.rounds})");
+            }
+        }
+    }
+
 
     void UpdateUI()
     {
