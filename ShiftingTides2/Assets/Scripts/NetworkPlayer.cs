@@ -1,11 +1,23 @@
 using Unity.Netcode;
 using UnityEngine;
 
+public enum EmotionState
+    {
+        Neutral,
+        Happy,
+        Angry
+    }
 public class NetworkPlayer : NetworkBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private Sprite[] playerSprites; // 4 sprites
+    [SerializeField] private Character[] playerSprites; // 4 sprites
     [SerializeField] private ScreenTransition lostScreenTransition;
+    public NetworkVariable<EmotionState> emotionState = new NetworkVariable<EmotionState>(
+        EmotionState.Neutral,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
     private bool hasSpawned = false;
 
     public NetworkVariable<int> playerIndex = new NetworkVariable<int>(-1,
@@ -28,7 +40,27 @@ public class NetworkPlayer : NetworkBehaviour
         }
 
         playerIndex.OnValueChanged += OnPlayerIndexChanged;
+        emotionState.OnValueChanged += OnEmotionChanged;
+
+        OnEmotionChanged(emotionState.Value, EmotionState.Neutral);
+
     }
+    private void OnEmotionChanged(EmotionState oldValue, EmotionState newValue)
+{
+    switch (newValue)
+    {
+        case EmotionState.Happy:
+            changeToHappySprite();
+            break;
+        case EmotionState.Angry:
+            changeToAngrySprite();
+            break;
+        default:
+            changeToNeutralSprite();
+            break;
+    }
+}
+
 
     private void AssignSprite()
     {
@@ -42,13 +74,30 @@ public class NetworkPlayer : NetworkBehaviour
 
         // Ensure unique sprites per player
         int spriteIndex = playerIndex.Value % playerSprites.Length;
-        spriteRenderer.sprite = playerSprites[spriteIndex];
+        spriteRenderer.sprite = playerSprites[spriteIndex].neutral;
         // Ensure sprite scale is reset
         spriteRenderer.transform.localScale = new Vector3(1f, 1f, 1f);
         spriteRenderer.sortingOrder = 1; // Set sorting order to 1
         Debug.Log($"[NetworkPlayer] Assigned sprite {spriteIndex} to player {playerIndex.Value}");
     }
 
+    public void changeToAngrySprite()
+    {
+        int spriteIndex = playerIndex.Value % playerSprites.Length;
+        spriteRenderer.sprite = playerSprites[spriteIndex].angry;
+    }
+
+    public void changeToHappySprite()
+    {
+        int spriteIndex = playerIndex.Value % playerSprites.Length;
+        spriteRenderer.sprite = playerSprites[spriteIndex].smiling;
+    }
+
+    public void changeToNeutralSprite()
+    {
+        int spriteIndex = playerIndex.Value % playerSprites.Length;
+        spriteRenderer.sprite = playerSprites[spriteIndex].neutral;
+    }
     private void SetPlayerPosition()
     {
         Vector3[] positions = new Vector3[]

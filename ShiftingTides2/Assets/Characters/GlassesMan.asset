@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0bfbc1c86d5bb4568a7e068593270c2, type: 3}
-  m_Name: BlackWoman
+  m_Name: GlassesMan
   m_EditorClassIdentifier: 
-  characterName: black-woman
-  neutral: {fileID: -9063143255990474730, guid: 0f08bcb997d65445385ca2e3d7a68f40, type: 3}
-  smiling: {fileID: 1162723100760442487, guid: 216a3f3c0b532acbabbfec4dc58c2a31, type: 3}
-  angry: {fileID: -8800096556689249875, guid: 711a700df47cb71159f0972ab3899267, type: 3}
+  characterName: glasses-man
+  neutral: {fileID: -4758504963729542879, guid: f47e1a7f895b3b073b568a0a07e54532, type: 3}
+  smiling: {fileID: -3828134976966391818, guid: 1a5194abd8cd62e3e9e2bc2400e3e3ea, type: 3}
+  angry: {fileID: 3275860665450669127, guid: 660ad4a3fc8b9acedaf0886dc07fd21b, type: 3}

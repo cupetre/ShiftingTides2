@@ -16,7 +16,10 @@ public class GoalAchieveManager : NetworkBehaviour
     private GoalManager goalManager;
 
     [SerializeField] private GameObject LostCut;
+    [SerializeField] private GameObject ProgressCard;
     private ScreenTransition screenTransition;
+    
+    private GoalDisplay goalDisplay;
 
     void Awake()
     {
@@ -24,6 +27,7 @@ public class GoalAchieveManager : NetworkBehaviour
         gameManager     = FindFirstObjectByType<GameManager>();
         goalManager     = FindFirstObjectByType<GoalManager>();
         screenTransition = LostCut.GetComponent<ScreenTransition>();
+        goalDisplay = FindFirstObjectByType<GoalDisplay>();
     }
 
     public override void OnNetworkSpawn()
@@ -70,23 +74,23 @@ public class GoalAchieveManager : NetworkBehaviour
               && curInfluence >= goal.resources.influence
               && curPeople    >= goal.resources.people;
         }
-        else // Goal targeting opponents 
-        {
-            ok = true;
-            for (int i = 0; i < 4; i++)
-            {
-                if (i == playerIndex) continue;
-                int oMoney     = resourceManager.GetMoney(i);
-                int oInfluence = resourceManager.GetInfluence(i);
-                int oPeople    = resourceManager.GetPeople(i);
-                if (oMoney     < goal.resources.money
-                 || oInfluence < goal.resources.influence
-                 || oPeople    < goal.resources.people)
-                {
-                    ok = false; break;
-                }
-            }
-        }
+        // else // Goal targeting opponents 
+        // {
+        //     ok = true;
+        //     for (int i = 0; i < 4; i++)
+        //     {
+        //         if (i == playerIndex) continue;
+        //         int oMoney     = resourceManager.GetMoney(i);
+        //         int oInfluence = resourceManager.GetInfluence(i);
+        //         int oPeople    = resourceManager.GetPeople(i);
+        //         if (oMoney     < goal.resources.money
+        //          || oInfluence < goal.resources.influence
+        //          || oPeople    < goal.resources.people)
+        //         {
+        //             ok = false; break;
+        //         }
+        //     }
+        // }
 
         if (ok)
         {
@@ -94,6 +98,9 @@ public class GoalAchieveManager : NetworkBehaviour
             Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal {goal.title} (ID:{goal.id})");
             // Add some trigger UI later.
             screenTransition.SetPlayerWon(playerIndex);
+            
         }
+        goalDisplay.UpdateProgressDisplay();
+        
     }
 }
