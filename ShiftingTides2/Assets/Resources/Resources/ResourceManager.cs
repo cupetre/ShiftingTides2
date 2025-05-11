@@ -87,7 +87,7 @@ public class ResourceManager : NetworkBehaviour
     {
         money[playerIndex] += amount;
 
-        if (money[playerIndex] == 0)
+        if (money[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
             callLoseScene(playerIndex);
@@ -98,7 +98,7 @@ public class ResourceManager : NetworkBehaviour
     public void AddPeopleServerRpc(int playerIndex, int amount)
     {
         people[playerIndex] += amount;
-        if (people[playerIndex] == 0)
+        if (people[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
              callLoseScene(playerIndex);
@@ -109,7 +109,7 @@ public class ResourceManager : NetworkBehaviour
     public void AddInfluenceServerRpc(int playerIndex, int amount)
     {
         influence[playerIndex] = Mathf.Clamp(influence[playerIndex] + amount, 0, 100);
-        if (influence[playerIndex] == 0)
+        if (influence[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
              callLoseScene(playerIndex);
