@@ -52,55 +52,53 @@ public class GoalAchieveManager : NetworkBehaviour
     // Goal checking logic
     private void CheckGoal(int playerIndex)
     {
-        if (achieved[playerIndex]) return;  // already achieved
+        if (achieved[playerIndex]) return; // Already achieved
 
-        // Get the players goal
+        // Search for the player object
         var playerObject = gameManager.playerObjects[playerIndex];
-        var netPlayer    = playerObject.GetComponent<NetworkPlayer>();
-        int goalIdx      = netPlayer.goalIndex.Value;
-        var goal         = goalManager.GetGoal(goalIdx);
+        var netPlayer = playerObject.GetComponent<NetworkPlayer>();
+        int goalIdx = netPlayer.goalIndex.Value;
+        var goal = goalManager.GetGoal(goalIdx);
         if (goal == null) return;
 
-        // Current player resources
-        int curMoney     = resourceManager.GetMoney(playerIndex);
+        // Search for the player's resources
+        int curMoney = resourceManager.GetMoney(playerIndex);
         int curInfluence = resourceManager.GetInfluence(playerIndex);
-        int curPeople    = resourceManager.GetPeople(playerIndex);
+        int curPeople = resourceManager.GetPeople(playerIndex);
 
-        bool ok = false;
-        // Goal targeting self
+        // Search for the current round
+        int currentRound = FindFirstObjectByType<RoundManager>().round.Value;
+
+        bool goalMet = false;
+
         if (goal.Target == Goal.TargetType.Self)
         {
-            ok = curMoney     >= goal.resources.money
-              && curInfluence >= goal.resources.influence
-              && curPeople    >= goal.resources.people;
+            // Type achieve (can be achieved at any time)
+            if (goal.Type == "achieve")
+            {
+                goalMet = curMoney >= goal.resources.money
+                    && curInfluence >= goal.resources.influence
+                    && curPeople >= goal.resources.people;
+            }
+            // Type rounds (must be achieved in a certain round)
+            else if (goal.Type == "rounds")
+            {
+                if (currentRound <= goal.rounds)
+                {
+                    goalMet = curMoney >= goal.resources.money
+                        && curInfluence >= goal.resources.influence
+                        && curPeople >= goal.resources.people;
+                }
+            }
         }
-        // else // Goal targeting opponents 
-        // {
-        //     ok = true;
-        //     for (int i = 0; i < 4; i++)
-        //     {
-        //         if (i == playerIndex) continue;
-        //         int oMoney     = resourceManager.GetMoney(i);
-        //         int oInfluence = resourceManager.GetInfluence(i);
-        //         int oPeople    = resourceManager.GetPeople(i);
-        //         if (oMoney     < goal.resources.money
-        //          || oInfluence < goal.resources.influence
-        //          || oPeople    < goal.resources.people)
-        //         {
-        //             ok = false; break;
-        //         }
-        //     }
-        // }
 
-        if (ok)
+        if (goalMet)
         {
             achieved[playerIndex] = true;
             Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal {goal.title} (ID:{goal.id})");
-            // Add some trigger UI later.
             screenTransition.SetPlayerWon(playerIndex);
-            
         }
+
         goalDisplay.UpdateProgressDisplay();
-        
     }
 }
