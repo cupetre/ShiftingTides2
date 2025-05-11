@@ -139,10 +139,21 @@ public class TurnManager : NetworkBehaviour
         StartTradeServerRpc(currentPlayer.Value);
     }
 
+    [ClientRpc]
+    public void ChangePlayerScaleClientRpc(int playerIndex, float scaleMultiplier)
+    {
+        if (players[playerIndex] != null)
+        {
+            Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
+            players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * scaleMultiplier, currScale.y * scaleMultiplier, 1.0f);
+        }
+    }
+
+
     [ServerRpc(RequireOwnership = false)]
     public void StartTradeServerRpc(int playerIndex)
     {
-        // Check if trade is already in progress
+        // Verifica se já existe uma troca em progresso
         if (tradeInProgress)
         {
             Debug.LogError("[TurnManager] Trade is already in progress.");
@@ -155,31 +166,26 @@ public class TurnManager : NetworkBehaviour
             Debug.LogError($"[TurnManager] Invalid player index: {playerIndex}");
             return;
         }
-        // Check if the current player is the one whose turn it is
+
+        // Verifica se é a vez do jogador correto
         if (currentPlayer.Value != playerIndex)
         {
             Debug.LogError($"[TurnManager] It's not player {playerIndex}'s turn.");
             return;
         }
-        // Start the trade for the current player
+
+        // Inicia a troca para o jogador atual
         Trade trade = tradeManager.GetRandomTrade();
 
-        // Make the player in turn object larger
-        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
-        players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * 2.0f, currScale.y * 2.0f, 1.0f);
+        // Muda a escala do personagem (aplicada em todos os clientes)
+        ChangePlayerScaleClientRpc(playerIndex, 1.5f);
 
-        // while (usedTrades.Contains(trade.id))
-        // {
-        //     Debug.LogError($"[TurnManager] Trade {trade.id} has already been used. Getting new one");
-        //     trade = tradeManager.GetRandomTrade();
-        // }
-
-        // usedTrades.Append(trade.id);
         currentTrade.Value = trade.id;
         Debug.Log($"[TurnManager] Player {playerIndex} is starting trade {trade.title} (ID: {trade.id})");
 
         StartCoroutine(TradeCoroutine(playerIndex, trade));
     }
+
 
     private IEnumerator TradeCoroutine(int playerIndex, Trade trade)
     {
@@ -310,8 +316,7 @@ public class TurnManager : NetworkBehaviour
         voteManager.voteDone.Value = false;
         Debug.Log($"[TurnManager] Player {currentPlayer.Value}'s turn started.");
 
-        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
-        players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x / 2.0f, currScale.y / 2.0f, 1.0f);
+        ChangePlayerScaleClientRpc(playerIndex, 1 / 1.5f);
         foreach (var player in players)
         {
             var networkPlayer = player.GetComponent<NetworkPlayer>();
