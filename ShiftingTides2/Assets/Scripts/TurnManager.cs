@@ -237,12 +237,12 @@ public class TurnManager : NetworkBehaviour
         }
 
         // Apply self effects
-        int yesVotesRatio = voteManager.playerYes.Count / numPlayers;
+        float yesVotesRatio = (float)voteManager.playerYes.Count / numPlayers;
         ApplyTradeEffects(playerIndex,
-                        trade.effect.selfMoney * yesVotesRatio,
-                        trade.effect.selfPeople * yesVotesRatio,
-                        trade.effect.selfInfluence * yesVotesRatio,
-                        isSelf: true);
+            Mathf.RoundToInt(trade.effect.selfMoney * yesVotesRatio),
+            Mathf.RoundToInt(trade.effect.selfPeople * yesVotesRatio),
+            Mathf.RoundToInt(trade.effect.selfInfluence * yesVotesRatio),
+            isSelf: true);
 
         // Apply others effects
         foreach (int otherPlayerId in playerYes)
