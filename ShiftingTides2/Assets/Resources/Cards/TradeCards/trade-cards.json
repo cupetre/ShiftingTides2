@@ -3,8 +3,8 @@
     {
       "id": 1,
       "type": "normal",
-      "title": "Political Favor",
-      "description": "For every player that offers 10 people they get 15 of influence.",
+      "title": "A Gentleman's Arrangement",
+      "description": "Offer to send 10 of our people to support another faction. In return, ask for 15 Influence. Call it goodwill — even if no one buys it.",
       "effect": {
         "selfMoney": 0,
         "selfPeople": 10,
@@ -18,10 +18,10 @@
       "id": 2,
       "type": "normal",
       "title": "Fund the Movement",
-      "description": "Player that offers 10 Money to the trader, gain 15 People from trader",
+      "description": "Your faction is backing a rising movement in exchange for manpower. Offer 10 Money to any faction willing to send you 15 People.",
       "effect": {
-        "selfMoney": 10,
-        "selfPeople": -15,
+        "selfMoney": -10,
+        "selfPeople": 15,
         "selfInfluence": 0,
         "othersMoney": 10,
         "othersPeople": -15,
@@ -32,7 +32,7 @@
       "id": 3,
       "type": "normal",
       "title": "Resource Swap",
-      "description": "Offer to trade 10 Influence from you for 10 Money from any player who accepts.",
+      "description": "Your faction is low on funds but holds sway in the city. Offer 10 Influence to any faction willing to pay you 10 Money.",
       "effect": {
         "selfMoney": 10,
         "selfPeople": 0,
@@ -46,7 +46,7 @@
       "id": 4,
       "type": "normal",
       "title": "Resource Swap",
-      "description": "Offer to trade 10 people for 10 Money from any player who accepts.",
+      "description": "You need funds, and your faction is willing to send 10 People to work with another faction in exchange for 10 Money.",
       "effect": {
         "selfMoney": 10,
         "selfPeople": -10,
@@ -60,7 +60,7 @@
       "id": 5,
       "type": "normal",
       "title": "Resource Swap",
-      "description": "Offer to trade 10 people for 10 influence from any player who accepts.",
+      "description": "You’re offering skilled people to gain political leverage. Trade 10 People to any faction willing to give you 10 Influence.",
       "effect": {
         "selfMoney": 0,
         "selfPeople": -10,
@@ -74,7 +74,7 @@
       "id": 6,
       "type": "normal",
       "title": "Charity Campaign",
-      "description": "Lose 10 Money to gain 15 People from players who accept trade",
+      "description": "To build trust and gain supporters, your faction offers 10 Money to those in need, hoping to receive 15 People in return.",
       "effect": {
         "selfMoney": -10,
         "selfPeople": 15,
@@ -88,7 +88,7 @@
       "id": 7,
       "type": "normal",
       "title": "Influencer Partnership",
-      "description": "Trade 15 People to gain 10 Influence.",
+      "description": "Your faction is looking to raise its profile. Trade 15 People for 10 Influence with any faction that agrees to amplify your agenda",
       "effect": {
         "selfMoney": 0,
         "selfPeople": -15,

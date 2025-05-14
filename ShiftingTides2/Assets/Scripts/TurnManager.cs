@@ -197,7 +197,7 @@ public class TurnManager : NetworkBehaviour
         voteManager.HideVoteButtonsClientRpc(clientIds[playerIndex]);
 
         // Wait for the vote to be completed or 40s to pass
-        float waitTime = 40f;
+        float waitTime = 120f;
         float elapsedTime = 0f;
         while (elapsedTime < waitTime)
         {
