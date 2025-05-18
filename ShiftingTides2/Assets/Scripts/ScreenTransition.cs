@@ -1,122 +1,70 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using TMPro;
-using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class ScreenTransition : NetworkBehaviour
 {
     [SerializeField] private Image transitionImage;
     [SerializeField] private TextMeshProUGUI transitionText;
-    [SerializeField] private float fadeDuration = 1.0f;
-    [SerializeField] private float fadeOutDuration = 2.0f;
-    
+    [SerializeField] private float returnToMenuDelay = 10f;
+
     private NetworkPlayer localPlayer;
 
     private void Awake()
     {
-        if (transitionImage != null && transitionText != null)
-        {
-            transitionImage.gameObject.SetActive(false);
-            transitionText.gameObject.SetActive(false);
-        }
+        if (transitionImage != null) transitionImage.gameObject.SetActive(false);
+        if (transitionText != null) transitionText.gameObject.SetActive(false);
     }
 
     private void Start()
     {
-        // Encontra o jogador local
+        // Get the local player reference
         localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkPlayer>();
     }
 
     public void SetPlayerLost(bool lost, int targetPlayerIndex)
     {
-        // Só mostra a mensagem se for o jogador que perdeu
+        if (transitionText == null || transitionImage == null) return;
+
         if (localPlayer.playerIndex.Value == targetPlayerIndex)
         {
-            int displayIndex = targetPlayerIndex + 1;
-            transitionText.text = $"Player {displayIndex} lost";
-            StartCoroutine(FadeInCoroutine());
-            StartCoroutine(LeaveGame());
+            transitionText.text = "YOU LOST";
         }
         else
         {
-            // Para outros jogadores, mostra mensagem diferente
-            int displayIndex = targetPlayerIndex + 1;
-            transitionText.text = $"Player {displayIndex} was eliminated";
-            StartCoroutine(ShowTemporaryMessage());
+            transitionText.text = $"Player {targetPlayerIndex + 1} lost";
         }
-    }
 
-    public void SetPlayerWon(int targetPlayerIndex) 
-    {
-        // Só mostra vitória se for o jogador que ganhou
-        if (localPlayer.playerIndex.Value == targetPlayerIndex)
-        {
-            int displayIndex = targetPlayerIndex + 1;
-            transitionText.text = $"Player {displayIndex} won!";
-            StartCoroutine(FadeInCoroutine());
-            StartCoroutine(LeaveGame());
-        }
-        else
-        {
-            // Para outros jogadores
-            int displayIndex = targetPlayerIndex + 1;
-            transitionText.text = $"Player {displayIndex} won the game";
-            StartCoroutine(ShowTemporaryMessage());
-        }
-    }
-
-    private IEnumerator ShowTemporaryMessage()
-    {
-        yield return StartCoroutine(FadeInCoroutine());
-        yield return new WaitForSeconds(3f); // Mostra a mensagem por 3 segundos
-        yield return StartCoroutine(FadeOutCoroutine());
-    }
-
-    private IEnumerator FadeInCoroutine()
-    {
         transitionImage.gameObject.SetActive(true);
         transitionText.gameObject.SetActive(true);
-        
-        Color colorImage = transitionImage.color;
-        Color colorText = transitionText.color;
 
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            colorImage.a = Mathf.Lerp(0f, 1f, t / fadeDuration);
-            colorText.a = Mathf.Lerp(0f, 1f, t / fadeDuration);
-            transitionImage.color = colorImage;
-            transitionText.color = colorText;
-            yield return null;
-        }
+        StartCoroutine(ReturnToMenu());
     }
 
-    private IEnumerator FadeOutCoroutine()
+    public void SetPlayerWon(int targetPlayerIndex)
     {
-        Color colorImage = transitionImage.color;
-        Color colorText = transitionText.color;
+        if (transitionText == null || transitionImage == null) return;
 
-        float t = 0f;
-        while (t < fadeOutDuration)
+        if (localPlayer.playerIndex.Value == targetPlayerIndex)
         {
-            t += Time.deltaTime;
-            colorImage.a = Mathf.Lerp(1f, 0f, t / fadeOutDuration);
-            colorText.a = Mathf.Lerp(1f, 0f, t / fadeOutDuration);
-            transitionImage.color = colorImage;
-            transitionText.color = colorText;
-            yield return null;
+            transitionText.text = "YOU WON!";
+        }
+        else
+        {
+            transitionText.text = $"Player {targetPlayerIndex + 1} won the game";
         }
 
-        transitionImage.gameObject.SetActive(false);
-        transitionText.gameObject.SetActive(false);
+        transitionImage.gameObject.SetActive(true);
+        transitionText.gameObject.SetActive(true);
+
+        StartCoroutine(ReturnToMenu());
     }
 
-    private IEnumerator LeaveGame()
+    private System.Collections.IEnumerator ReturnToMenu()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(returnToMenuDelay);
         NetworkManager.Singleton.Shutdown();
         SceneManager.LoadScene("MainMenuScene");
     }

@@ -34,7 +34,7 @@ public class VoteManager : NetworkBehaviour
         noVotes.OnValueChanged += OnNoVotesChanged;
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if ((yesVotes.Value + noVotes.Value >= 3) && !voteDone.Value)
         {

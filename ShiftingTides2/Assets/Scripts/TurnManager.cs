@@ -18,11 +18,12 @@ public class TurnManager : NetworkBehaviour
     private TradeDisplay tradeDisplay;
     private VoteManager voteManager;
     private ResourceManager resourceManager;
-
     private RoundManager roundManager;
+    private GoalAchieveManager goalManager;
+    private ScreenTransition screenTransition;
+    private GoalDisplay goalDisplay;
 
     private Trade[] trades;
-    private GameObject tradeCard;
     private GameObject voteButtons;
 
     public NetworkVariable<int> currentPlayer = new NetworkVariable<int>(-1);
@@ -31,18 +32,22 @@ public class TurnManager : NetworkBehaviour
 
     public ulong[] clientIds;
     public bool turnActive = false;
-
     public int[] usedTrades;
 
     void Start()
     {
         if (!IsServer) return;
-        // Find trade manager and game manager instances in the scene
+
+        // Apply Instances
         tradeManager = FindFirstObjectByType<TradeManager>();
         gameManager = FindFirstObjectByType<GameManager>();
         roundManager = FindFirstObjectByType<RoundManager>();
-        // Find trade display script inside the same object
+        resourceManager = FindFirstObjectByType<ResourceManager>();
+        goalManager = FindFirstObjectByType<GoalAchieveManager>();
         tradeDisplay = FindFirstObjectByType<TradeDisplay>();
+        screenTransition = FindFirstObjectByType<ScreenTransition>();
+        goalDisplay = FindFirstObjectByType<GoalDisplay>();
+
         // Find vote manager instance in the scene
         voteButtons = GameObject.Find("YesNoButton");
         if (voteButtons == null)
@@ -106,14 +111,16 @@ public class TurnManager : NetworkBehaviour
         StartTurnServerRpc();
     }
 
-    void FixedUpdate()
-    {
-
-    }
-
     [ServerRpc(RequireOwnership = false)]
     public void StartTurnServerRpc()
     {
+        GoalManager goalManager = FindFirstObjectByType<GoalManager>();
+        if (goalManager == null)
+        {
+            Debug.LogError("[TurnManager] GoalManager instance not found.");
+            return;
+        }
+
         foreach (var player in players)
         {
             if (player == null)
@@ -121,15 +128,10 @@ public class TurnManager : NetworkBehaviour
                 Debug.LogError("[TurnManager] Player object is null.");
                 return;
             }
-            // Hide goal card for all players
-            GoalManager goalManager = FindFirstObjectByType<GoalManager>();
-            if (goalManager == null)
-            {
-                Debug.LogError("[TurnManager] GoalManager instance not found.");
-                return;
-            }
-
+            // You can add player-specific logic here if needed
+            // No need to find GoalManager every time
         }
+
         if (currentPlayer.Value == -1)
         {
             currentPlayer.Value = 0;
@@ -184,21 +186,34 @@ public class TurnManager : NetworkBehaviour
     private IEnumerator TradeCoroutine(int playerIndex, Trade trade)
     {
         Debug.Log($"[TurnManager] Starting trade coroutine for player {playerIndex} with trade {trade.title}");
+
         voteManager.yesVotes.Value = 0;
         voteManager.noVotes.Value = 0;
 
-        yield return new WaitForSeconds(10f);
-        // Display the trade to the current player
-        tradeDisplay.displayTradeClientRpc(clientIds[playerIndex], trade);
-        // Wait for 5 seconds before displaying the vote buttons
-        yield return new WaitForSeconds(5f);
+        // Optional: shorten or remove delay if unnecessary
+        yield return new WaitForSeconds(2f); // instead of 10s if you want snappier
+
+        // Display the trade to the current player safely
+        if (playerIndex < clientIds.Length)
+        {
+            tradeDisplay.displayTradeClientRpc(clientIds[playerIndex], trade);
+        }
+        else
+        {
+            Debug.LogError("[TurnManager] Invalid playerIndex or clientIds array.");
+        }
+
+        // Wait before showing vote buttons so player can read trade info
+        yield return new WaitForSeconds(3f);
 
         voteManager.DisplayVoteButtonsServerRpc();
+
+        // Hide vote buttons for current player if that is intentional
         voteManager.HideVoteButtonsClientRpc(clientIds[playerIndex]);
 
-        // Wait for the vote to be completed or 40s to pass
         float waitTime = 40f;
         float elapsedTime = 0f;
+
         while (elapsedTime < waitTime)
         {
             if (voteManager.voteDone.Value)
@@ -211,8 +226,9 @@ public class TurnManager : NetworkBehaviour
         }
 
         Debug.Log($"[TurnManager] Vote completed or timed out. Elapsed time: {elapsedTime}");
+
         voteManager.HideVoteButtonsClientRpc();
-        // Process the trade after the vote
+
         StartCoroutine(ProcessTrade(playerIndex, trade));
     }
 
@@ -228,8 +244,7 @@ public class TurnManager : NetworkBehaviour
         }
         Debug.Log($"[TurnManager] Players who voted yes: {string.Join(", ", playerYes)}");
 
-        // Get resource manager
-        resourceManager = FindFirstObjectByType<ResourceManager>();
+        // Check resource manager
         if (resourceManager == null)
         {
             Debug.LogError("[TurnManager] ResourceManager instance not found.");
@@ -237,11 +252,16 @@ public class TurnManager : NetworkBehaviour
         }
 
         // Apply self effects
-        float yesVotesRatio = (float)voteManager.playerYes.Count / numPlayers;
+        int yesVotesCount = voteManager.playerYes.Count;
+
+        int totalSelfMoney = trade.effect.selfMoney * yesVotesCount;
+        int totalSelfPeople = trade.effect.selfPeople * yesVotesCount;
+        int totalSelfInfluence = trade.effect.selfInfluence * yesVotesCount;
+
         ApplyTradeEffects(playerIndex,
-            Mathf.RoundToInt(trade.effect.selfMoney * yesVotesRatio),
-            Mathf.RoundToInt(trade.effect.selfPeople * yesVotesRatio),
-            Mathf.RoundToInt(trade.effect.selfInfluence * yesVotesRatio),
+            totalSelfMoney,
+            totalSelfPeople,
+            totalSelfInfluence,
             isSelf: true);
 
         // Apply others effects
@@ -257,22 +277,19 @@ public class TurnManager : NetworkBehaviour
             }
         }
 
-        GoalAchieveManager goalManager = FindFirstObjectByType<GoalAchieveManager>();
-
         bool checkWin = goalManager.CheckGoal(playerIndex);
 
         if (checkWin)
         {
             Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal!");
 
-            ScreenTransition screenTransition = FindFirstObjectByType<ScreenTransition>();
-            GoalDisplay goalDisplay = FindFirstObjectByType<GoalDisplay>();
-
             if (screenTransition != null)
                 screenTransition.SetPlayerWon(playerIndex);
 
             if (goalDisplay != null)
                 goalDisplay.UpdateProgressDisplay();
+
+            tradeInProgress = false;
 
             yield break; 
         }
@@ -306,8 +323,8 @@ public class TurnManager : NetworkBehaviour
         voteManager.voteDone.Value = false;
         Debug.Log($"[TurnManager] Player {currentPlayer.Value}'s turn started.");
 
-        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
-        players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x / 2.0f, currScale.y / 2.0f, 1.0f);
+        players[playerIndex].gameObject.transform.localScale = Vector3.one;
+
         foreach (var player in players)
         {
             var networkPlayer = player.GetComponent<NetworkPlayer>();
