@@ -4700,6 +4700,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
       propertyPath: m_LocalPosition.x
       value: 477.5
       objectReference: {fileID: 0}
@@ -4717,15 +4729,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 441560522795083997, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4782,6 +4794,54 @@ PrefabInstance:
     - target: {fileID: 6116312333308444294, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6481926884694993483, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6546708481211139961, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target

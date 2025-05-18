@@ -42,24 +42,17 @@ public class GoalAchieveManager : NetworkBehaviour
         // screenTransition.SetPlayerLost(false, 0);
     }
 
-    // Call this from the TurnManager at the end of the turn
-    [ServerRpc(RequireOwnership = false)]
-    public void CheckGoalServerRpc(int playerIndex)
-    {
-        CheckGoal(playerIndex);
-    }
-
     // Goal checking logic
-    private void CheckGoal(int playerIndex)
+    public bool CheckGoal(int playerIndex)
     {
-        if (achieved[playerIndex]) return;  // already achieved
+        if (achieved[playerIndex]) return false;  // already achieved
 
         // Get the players goal
         var playerObject = gameManager.playerObjects[playerIndex];
         var netPlayer    = playerObject.GetComponent<NetworkPlayer>();
         int goalIdx      = netPlayer.goalIndex.Value;
         var goal         = goalManager.GetGoal(goalIdx);
-        if (goal == null) return;
+        if (goal == null) return false;
 
         // Current player resources
         int curMoney     = resourceManager.GetMoney(playerIndex);
@@ -74,33 +67,15 @@ public class GoalAchieveManager : NetworkBehaviour
               && curInfluence >= goal.resources.influence
               && curPeople    >= goal.resources.people;
         }
-        // else // Goal targeting opponents 
-        // {
-        //     ok = true;
-        //     for (int i = 0; i < 4; i++)
-        //     {
-        //         if (i == playerIndex) continue;
-        //         int oMoney     = resourceManager.GetMoney(i);
-        //         int oInfluence = resourceManager.GetInfluence(i);
-        //         int oPeople    = resourceManager.GetPeople(i);
-        //         if (oMoney     < goal.resources.money
-        //          || oInfluence < goal.resources.influence
-        //          || oPeople    < goal.resources.people)
-        //         {
-        //             ok = false; break;
-        //         }
-        //     }
-        // }
 
         if (ok)
         {
             achieved[playerIndex] = true;
-            Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal {goal.title} (ID:{goal.id})");
-            // Add some trigger UI later.
-            screenTransition.SetPlayerWon(playerIndex);
-            
+            return true;
         }
+
         goalDisplay.UpdateProgressDisplay();
+    return false;
         
     }
 }

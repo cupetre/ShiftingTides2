@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class GoalDisplay : NetworkBehaviour
 {
-    int numResources = 3;
     public TMP_Text goalTitle;
     public TMP_Text goalDescription;
 
@@ -77,6 +76,7 @@ public class GoalDisplay : NetworkBehaviour
         }
 
         assignedGoal = GoalManager.Instance.goals[indexGoal];
+
         // Set the assignedGoal title and description
         goalTitle.text = assignedGoal.title;
         goalDescription.text = assignedGoal.description;

@@ -257,43 +257,42 @@ public class TurnManager : NetworkBehaviour
             }
         }
 
-        // End the turn
-        StartCoroutine(EndTurnCoroutine(playerIndex));
-        tradeInProgress = false;
-        Debug.Log($"[TurnManager] Trade completed for player {playerIndex}");
+        GoalAchieveManager goalManager = FindFirstObjectByType<GoalAchieveManager>();
+
+        bool checkWin = goalManager.CheckGoal(playerIndex);
+
+        if (checkWin)
+        {
+            Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal!");
+
+            ScreenTransition screenTransition = FindFirstObjectByType<ScreenTransition>();
+            GoalDisplay goalDisplay = FindFirstObjectByType<GoalDisplay>();
+
+            if (screenTransition != null)
+                screenTransition.SetPlayerWon(playerIndex);
+
+            if (goalDisplay != null)
+                goalDisplay.UpdateProgressDisplay();
+
+            yield break; 
+        }
+        else
+        {
+            tradeInProgress = false;
+            Debug.Log($"[TurnManager] Trade completed for player {playerIndex}");
+
+            // Player didn’t win, continue to EndTurnCoroutine
+            StartCoroutine(EndTurnCoroutine(playerIndex));
+        }
+
         yield return null;
     }
 
-    private void ApplyTradeEffects(int playerId, int money, int people, int influence, bool isSelf)
-    {
-        string target = isSelf ? "SELF" : "OTHER";
-
-        if (money != 0)
-        {
-            resourceManager.AddMoneyServerRpc(playerId, money);
-            Debug.Log($"[TurnManager] {target} Player {playerId} received {money} money. (Current: {resourceManager.GetMoney(playerId)})");
-        }
-
-        if (people != 0)
-        {
-            resourceManager.AddPeopleServerRpc(playerId, people);
-            Debug.Log($"[TurnManager] {target} Player {playerId} received {people} people. (Current: {resourceManager.GetPeople(playerId)})");
-        }
-
-        if (influence != 0)
-        {
-            resourceManager.AddInfluenceServerRpc(playerId, influence);
-            Debug.Log($"[TurnManager] {target} Player {playerId} received {influence} influence. (Current: {resourceManager.GetInfluence(playerId)})");
-        }
-    }
     private IEnumerator EndTurnCoroutine(int playerIndex)
     {
         // Wait for the trade to be processed
         yield return new WaitForSeconds(5f);
 
-        // Verify if the player has achieved their goal
-        FindFirstObjectByType<GoalAchieveManager>()
-            .CheckGoalServerRpc(playerIndex);
         roundManager.TurnEndedServerRpc(playerIndex);
 
         // End the turn for the current player
@@ -318,8 +317,29 @@ public class TurnManager : NetworkBehaviour
             }
         }
 
-
-
         StartTurnServerRpc();
+    }
+
+        private void ApplyTradeEffects(int playerId, int money, int people, int influence, bool isSelf)
+    {
+        string target = isSelf ? "SELF" : "OTHER";
+
+        if (money != 0)
+        {
+            resourceManager.AddMoneyServerRpc(playerId, money);
+            Debug.Log($"[TurnManager] {target} Player {playerId} received {money} money. (Current: {resourceManager.GetMoney(playerId)})");
+        }
+
+        if (people != 0)
+        {
+            resourceManager.AddPeopleServerRpc(playerId, people);
+            Debug.Log($"[TurnManager] {target} Player {playerId} received {people} people. (Current: {resourceManager.GetPeople(playerId)})");
+        }
+
+        if (influence != 0)
+        {
+            resourceManager.AddInfluenceServerRpc(playerId, influence);
+            Debug.Log($"[TurnManager] {target} Player {playerId} received {influence} influence. (Current: {resourceManager.GetInfluence(playerId)})");
+        }
     }
 }

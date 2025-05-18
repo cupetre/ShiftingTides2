@@ -59,7 +59,7 @@
     <UnityVersion>6000.0.44f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Users\dudat\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.1.2\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Users\Hristijan Cupetreski\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.1.2\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.44f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.44f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.44f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
@@ -77,6 +77,7 @@
     <Compile Include="Assets\Resources\Cards\Hidden Cards\HiddenCard.cs" />
     <Compile Include="Assets\Scripts\MainMenuUI.cs" />
     <Compile Include="Assets\Scripts\RoundManager.cs" />
+    <Compile Include="Assets\Characters\Character.cs" />
     <Compile Include="Assets\Scripts\GoalAchieveManager.cs" />
     <Compile Include="Assets\Resources\Cards\GoalCards\GoalDisplay.cs" />
     <Compile Include="Assets\Resources\Cards\Hidden Cards\HiddenCardManager.cs" />
