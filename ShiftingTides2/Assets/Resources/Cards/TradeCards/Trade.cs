@@ -10,7 +10,6 @@ public class Trade : INetworkSerializable
     public string type;
     public string title;
     public string description;
-
     public Effect effect = new Effect();
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter

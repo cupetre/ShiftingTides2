@@ -13,10 +13,8 @@ public class TradeManager : MonoBehaviour
     {
         public Trade[] actions;
     }
-
     public Trade[] trades;
     private bool tradesLoaded = false;
-
     private HashSet<int> assignedTradesIndices = new HashSet<int>();
 
     private void Awake()
@@ -75,25 +73,10 @@ public class TradeManager : MonoBehaviour
         yield return null;
     }
 
-    // public Trade GetTrade(int index)
-    // {
-    //     // Safe array access with bounds checking
-    //     return (index >= 0 && index < trades.Length) ? trades[index] : null;
-    // }
-
     public Trade GetRandomTrade()
     {
         if (!tradesLoaded || trades == null) return null;
 
-        // Assign a random trade
-        
-
         return trades[Random.Range(0, trades.Length)];
     }
-
-    public bool AreTradesLoaded()
-    {
-        return tradesLoaded;
-    }
-
 }

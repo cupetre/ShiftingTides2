@@ -58,9 +58,9 @@ public class ResourceManager : NetworkBehaviour
         {
             for (int i = 0; i < 4; i++)
             {
-                money.Add(50);
-                people.Add(50);
-                influence.Add(50f);
+                money.Add(70);
+                people.Add(70);
+                influence.Add(60f);
                 loseList.Add(false);
             }
         }
@@ -74,12 +74,18 @@ public class ResourceManager : NetworkBehaviour
 
     private void OnResourceChanged(NetworkListEvent<int> changeEvent)
     {
+        if (changeEvent.Index == playerIndex)
+    {
         UpdateUI();
+    }
     }
 
     private void OnResourceChanged(NetworkListEvent<float> changeEvent)
     {
+        if (changeEvent.Index == playerIndex)
+    {
         UpdateUI();
+    }
     }
 
     [ServerRpc]
@@ -111,11 +117,6 @@ public class ResourceManager : NetworkBehaviour
     {
         influence[playerIndex] = Mathf.Clamp(influence[playerIndex] + amount, 0, 100);
 
-        /* if (influence[playerIndex] < 0)
-        {
-            loseList[playerIndex] = true;
-            callLoseScene(playerIndex);
-        } */
     }
 
 

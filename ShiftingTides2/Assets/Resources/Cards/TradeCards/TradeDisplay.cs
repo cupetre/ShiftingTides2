@@ -67,16 +67,9 @@ public class TradeDisplay : NetworkBehaviour
             return;
         }
 
-        // Set the trade title and description
-        // tradeTitle.text = assignedTrade.title;
+        // Set the trade description
         tradeCard.SetActive(true);
         tradeDescription.text = assignedTrade.description;
-
-        //HiddenCard assignedHidden = HiddenCardManager.Instance.GetRandomHiddenCard();
-
-        //if(assignedHidden != null) {
-        //    tradeDescription.text += "...But" + assignedHidden.description;
-        //}
 
         Debug.Log($"[TradeDisplayManager] Trade Display initialized for player {playerIndex} with trade {assignedTrade}");
     }

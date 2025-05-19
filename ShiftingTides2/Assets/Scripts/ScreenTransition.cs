@@ -53,7 +53,7 @@ public class ScreenTransition : NetworkBehaviour
         }
         else
         {
-            transitionText.text = $"Player {targetPlayerIndex + 1} won the game";
+            transitionText.text = $"You suck, Player {targetPlayerIndex + 1} won the game";
         }
 
         transitionImage.gameObject.SetActive(true);
