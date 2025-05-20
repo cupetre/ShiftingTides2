@@ -2,219 +2,148 @@
   "hidden": [
     {
       "id": 1,
-      "type": "yesVotes",
+      "type": "against-one",
       "title": "The Bribe",
       "description": "If exactly 1 player votes Yes, you gain 20 Influence. They lose 20 Money.",
       "effect": {
-        "others": {
-          "money": -20
-        },
-        "self": {
-          "influence": 20
-        }
+        "othersMoney": -20,
+        "selfInfluence": 20
       },
-      "votes": {
-        "type": "yes",
         "count": 1
-      }
     },
     {
       "id": 2,
-      "type": "yesVotes",
+      "type": "against-one",
       "title": "The Bribe",
       "description": "If exactly 1 player votes Yes, you gain 20 Money. They lose 20 People.",
       "effect": {
-        "others": {
-          "people": -20
-        },
-        "self": {
-          "money": 20
-        }
+        "othersPeople": -20,
+        "selfMoney": 20
       },
-      "votes": {
-        "type": "yes",
         "count": 1
-      }
     },
     {
       "id": 3,
-      "type": "yesVotes",
+      "type": "against-one",
       "title": "The Bribe",
       "description": "If exactly 1 player votes Yes, you gain 20 Influence. They lose 20 People.",
       "effect": {
-        "others": {
-          "people": -20
-        },
-        "self": {
-          "influence": 20
-        }
+        "othersPeople": -20,
+        "selfInfluence": 20
       },
-      "votes": {
-        "type": "yes",
         "count": 1
-      }
     },
     {
       "id": 4,
-      "type": "noVotes",
+      "type": "against-all",
       "title": "The Great Betrayal",
       "description": "If all players vote No, they each lose 10 Money, and you receive 30 Influence.",
       "effect": {
-        "others": {
-          "money": -10
-        },
-        "self": {
-          "influence": 30
-        }
+        "othersMoney": -10,
+        "selfInfluence": 30
       },
-      "votes": {
-        "type": "no",
-        "count": 3
-      }
+        "count": 0
     },
     {
       "id": 5,
-      "type": "noVotes",
+      "type": "against-all",
       "title": "The Great Betrayal",
       "description": "If all players vote No, they each lose 10 People, and you receive 30 Influence.",
       "effect": {
-        "others": {
-          "people": -10
-        },
-        "self": {
-          "influence": 30
-        }
+        "othersPeople": -10,
+        "selfInfluence": 30
       },
-      "votes": {
-        "type": "no",
-        "count": 3
-      }
+        "count": 0
     },
     {
       "id": 6,
-      "type": "yesVotes",
+      "type": "against-all",
       "title": "The Great Betrayal",
       "description": "If all players vote No, they each lose 10 People, and you receive 30 Influence.",
       "effect": {
-        "others": {
-          "people": -10
-        },
-        "self": {
-          "influence": 30
-        }
+        "othersPeople": -10,
+        "selfInfluence": 30
       },
-      "votes": {
-        "type": "yes",
-        "count": 3
-      }
+        "count": 0
     },
     {
       "id": 7,
-      "type": "noVotes",
+      "type": "against-all",
       "title": "The Great Betrayal",
-      "description": "If all players vote No, they each lose 10 Money, and you receive their total funds.",
+      "description": "If all players vote No, they each lose 10 Money, and you receive 30.",
       "effect": {
-        "others": {
-          "money": -10
-        },
-        "self": {
-          "money": 30
-        }
+        "othersMoney": -10,
+        "selfMoney": 30
       },
-      "votes": {
-        "type": "no",
-        "count": 3
-      }
+        "count": 0
     },
     {
       "id": 8,
-      "type": "yesVotes",
+      "type": "against-yes-voters",
       "title": "Power Surge",
       "description": "If even one player votes Yes, gain 25 Influence. All Yes voters lose 10 People.",
       "effect": {
-        "others": {
-          "people": -10
-        },
-        "self": {
-          "influence": 25
-        }
+        "othersPeople": -10,
+        "selfInfluence": 25
       },
-      "votes": {
-        "type": "yes",
         "count": 1
-      }
     },
     {
       "id": 9,
-      "type": "yesVotes",
+      "type": "against-yes-voters",
       "title": "Money Surge",
       "description": "If even one player votes Yes, gain 25 Money. All Yes voters lose 10 People.",
       "effect": {
-        "others": {
-          "people": -10
-        },
-        "self": {
-          "money": 25
-        }
+        "othersPeople": -10,
+        "selfMoney": 25
       },
-      "votes": {
-        "type": "yes",
         "count": 1
-      }
-    },
-    {
-      "id": 10,
-      "type": "noVotes",
-      "title": "Crowd Surge",
-      "description": "If even one player votes No, gain 25 People. All Yes voters lose 10 Money.",
-      "effect": {
-        "others": {
-          "money": -10
-        },
-        "self": {
-          "people": 25
-        }
-      },
-      "votes": {
-        "type": "no",
-        "count": 1
-      }
     },
     {
       "id": 11,
-      "type": "yesVotes",
+      "type": "compensation",
       "title": "Blood Pact",
       "description": "If 2 players vote Yes, they each gain 10 people, and you gain 20 influence.",
       "effect": {
-        "others": {
-          "people": 10
-        },
-        "self": {
-          "influence": 20
-        }
+        "othersPeople": 10,
+        "selfInfluence": 20
       },
-      "votes": {
-        "type": "yes",
         "count": 2
-      }
     },
     {
       "id": 12,
-      "type": "yesVotes",
+      "type": "compensation",
+      "title": "Blood Pact",
+      "description": "If all players vote Yes, they each gain 10 money, and you gain 10 people.",
+      "effect": {
+        "othersMoney": 10,
+        "self": {
+          "people": 20
+        }
+      },
+        "count": 3
+    },
+    {
+      "id": 13,
+      "type": "against-yes-voters",
       "title": "Power Surge",
       "description": "If even one player votes Yes, gain 25 Influence. All Yes voters lose 10 People.",
       "effect": {
-        "others": {
-          "people": 10
-        },
-        "self": {
-          "influence": 25
-        }
+        "othersPeople": 10,
+        "selfInfluence": 25
       },
-      "votes": {
-        "type": "yes",
         "count": 1
-      }
+    },
+    {
+      "id": 13,
+      "type": "compensation",
+      "title": "Blood Pact",
+      "description": "If 2 players vote Yes, they each gain 10 influence, and you gain 20 money.",
+      "effect": {
+        "othersInfluence": 10,
+        "selfMoney": 20
+      },
+        "count": 2
     }
   ]
 }

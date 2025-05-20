@@ -85,7 +85,7 @@ public class HiddenCardManager : MonoBehaviour
     {
         if (!hiddenLoaded || hiddenCards == null) return null;
 
-        if (Random.Range(0, 2) == 0) // 50% chance
+        if (Random.Range(0, 3) == 0) 
         {
            return hiddenCards[Random.Range(0, hiddenCards.Length)];
 

@@ -9,7 +9,9 @@ public class TradeDisplay : NetworkBehaviour
 
     public TMP_Text tradeDescription;
 
+    public TMP_Text hiddenDescription;
     [SerializeField] private GameObject tradeCard;
+    [SerializeField] private GameObject hiddenCard;
     private GameObject playerObject;
     private NetworkPlayer networkPlayer;
     private ulong clientId;
@@ -18,6 +20,7 @@ public class TradeDisplay : NetworkBehaviour
     private void Start()
     {
         tradeCard.SetActive(false);
+        hiddenCard.SetActive(false);
         // Get the client ID and player index
         clientId = NetworkManager.Singleton.LocalClientId;
 
@@ -39,7 +42,7 @@ public class TradeDisplay : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void displayTradeClientRpc(ulong targetClientId, Trade assignedTrade)
+    public void DisplayTradeClientRpc(ulong targetClientId, Trade assignedTrade)
     {
 
         // Check if is the trade owner
@@ -72,5 +75,40 @@ public class TradeDisplay : NetworkBehaviour
         tradeDescription.text = assignedTrade.description;
 
         Debug.Log($"[TradeDisplayManager] Trade Display initialized for player {playerIndex} with trade {assignedTrade}");
+    }
+
+    [ClientRpc]
+    public void DisplayHiddenCardClientRpc(ulong targetClientId, HiddenCard assignedHidden)
+    {
+        // Check if is the trade owner
+        if (NetworkManager.Singleton.LocalClientId != targetClientId)
+        {
+            return;
+        }
+        // Check if trades are loaded
+        if (HiddenCardManager.Instance.hiddenCards == null || HiddenCardManager.Instance.hiddenCards.Length == 0)
+        {
+            Debug.LogError("[TradeDisplayManager] No trades loaded. Cannot initialize trade display.");
+            return;
+        }
+
+        // Check if the player index is valid
+        if (playerIndex < 0 || playerIndex >= 4)
+        {
+            Debug.LogError($"[TradeDisplayManager] Invalid player index: {playerIndex}. Cannot initialize trade display.");
+            return;
+        }
+
+        if (assignedHidden == null)
+        {
+            Debug.Log($"[TradeDisplayManager] No hiddenCard: {assignedHidden}.");
+            return;
+        }
+
+        // Set the trade description
+        hiddenCard.SetActive(true);
+        hiddenDescription.text = assignedHidden.description;
+
+        Debug.Log($"[TradeDisplayManager] Trade Display initialized for player {playerIndex} with trade {assignedHidden}");
     }
 }

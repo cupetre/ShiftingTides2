@@ -165,6 +165,7 @@ public class TurnManager : NetworkBehaviour
         }
         // Start the trade for the current player
         Trade trade = tradeManager.GetRandomTrade();
+        HiddenCard hiddenCard = HiddenCardManager.Instance.GetRandomHiddenCard();
 
         // Make the player in turn object larger
         Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
@@ -180,10 +181,10 @@ public class TurnManager : NetworkBehaviour
         currentTrade.Value = trade.id;
         Debug.Log($"[TurnManager] Player {playerIndex} is starting trade {trade.title} (ID: {trade.id})");
 
-        StartCoroutine(TradeCoroutine(playerIndex, trade));
+        StartCoroutine(TradeCoroutine(playerIndex, trade, hiddenCard));
     }
 
-    private IEnumerator TradeCoroutine(int playerIndex, Trade trade)
+    private IEnumerator TradeCoroutine(int playerIndex, Trade trade, HiddenCard hiddenCard)
     {
         Debug.Log($"[TurnManager] Starting trade coroutine for player {playerIndex} with trade {trade.title}");
 
@@ -196,7 +197,11 @@ public class TurnManager : NetworkBehaviour
         // Display the trade to the current player safely
         if (playerIndex < clientIds.Length)
         {
-            tradeDisplay.displayTradeClientRpc(clientIds[playerIndex], trade);
+            tradeDisplay.DisplayTradeClientRpc(clientIds[playerIndex], trade);
+            if (hiddenCard != null)
+            {
+                tradeDisplay.DisplayHiddenCardClientRpc(clientIds[playerIndex], hiddenCard);
+            }
         }
         else
         {
@@ -229,10 +234,10 @@ public class TurnManager : NetworkBehaviour
 
         voteManager.HideVoteButtonsClientRpc();
 
-        StartCoroutine(ProcessTrade(playerIndex, trade));
+        StartCoroutine(ProcessTrade(playerIndex, trade, hiddenCard));
     }
 
-    private IEnumerator ProcessTrade(int playerIndex, Trade trade)
+    private IEnumerator ProcessTrade(int playerIndex, Trade trade, HiddenCard hiddenCard)
     {
         Debug.Log($"[TurnManager] Processing trade for player {playerIndex} with trade {trade.title}");
 
@@ -276,6 +281,11 @@ public class TurnManager : NetworkBehaviour
                                 isSelf: false);
             }
         }
+        if (hiddenCard != null)
+        {
+            ApplyHiddenCardEffects(playerIndex, hiddenCard);
+
+        }
 
         bool checkWin = goalManager.CheckGoal(playerIndex);
 
@@ -291,7 +301,7 @@ public class TurnManager : NetworkBehaviour
 
             tradeInProgress = false;
 
-            yield break; 
+            yield break;
         }
         else
         {
@@ -337,7 +347,7 @@ public class TurnManager : NetworkBehaviour
         StartTurnServerRpc();
     }
 
-        private void ApplyTradeEffects(int playerId, int money, int people, int influence, bool isSelf)
+    private void ApplyTradeEffects(int playerId, int money, int people, int influence, bool isSelf)
     {
         string target = isSelf ? "SELF" : "OTHER";
 
@@ -359,4 +369,42 @@ public class TurnManager : NetworkBehaviour
             Debug.Log($"[TurnManager] {target} Player {playerId} received {influence} influence. (Current: {resourceManager.GetInfluence(playerId)})");
         }
     }
+    private void ApplyHiddenCardEffects(int playerId, HiddenCard hidden)
+    {
+        string type = hidden.type;
+
+        int[] playerYes = new int[voteManager.playerYes.Count];
+        for (int i = 0; i < voteManager.playerYes.Count; i++)
+        {
+            playerYes[i] = voteManager.playerYes[i];
+        }
+        if (((type == "compensation" || type == "against-one" || type == "against-all") && voteManager.playerYes.Count == hidden.counts) ||
+        (type == "against-yes-voters" && voteManager.playerYes.Count >= hidden.counts))
+        {
+            resourceManager.AddMoneyServerRpc(playerId, hidden.effect.selfMoney);
+            foreach (int yesVoter in playerYes)
+            {
+                resourceManager.AddMoneyServerRpc(yesVoter, hidden.effect.othersMoney);
+            }
+
+            foreach (int yesVoter in playerYes)
+            {
+                resourceManager.AddPeopleServerRpc(playerId, hidden.effect.selfPeople);
+                resourceManager.AddPeopleServerRpc(yesVoter, hidden.effect.othersPeople);
+            }
+
+            foreach (int yesVoter in playerYes)
+            {
+                resourceManager.AddInfluenceServerRpc(playerId, hidden.effect.selfInfluence);
+                resourceManager.AddInfluenceServerRpc(playerId, hidden.effect.othersInfluence);
+            }
+
+
+        }
+
+
+
+    }
+
 }
+
