@@ -62,6 +62,22 @@ public class NetworkPlayer : NetworkBehaviour
 }
 
 
+    private float NormalizeCharacterScale(SpriteRenderer renderer, float desiredHeight = 4f)
+    {
+        if (renderer.sprite == null) return 1f;
+
+        float spriteHeight = renderer.sprite.bounds.size.y;
+        float scale = desiredHeight / spriteHeight;
+        renderer.transform.localScale = new Vector3(scale, scale, 1f);
+        return scale;
+    }
+
+    [ClientRpc]
+    private void UpdateScaleClientRpc(float scale)
+    {
+        transform.localScale = new Vector3(scale, scale, 1f);
+    }
+
     private void AssignSprite()
     {
         if (spriteRenderer == null || playerSprites.Length == 0) return;
@@ -72,14 +88,17 @@ public class NetworkPlayer : NetworkBehaviour
             return;
         }
 
-        // Ensure unique sprites per player
         int spriteIndex = playerIndex.Value % playerSprites.Length;
         spriteRenderer.sprite = playerSprites[spriteIndex].neutral;
-        // Ensure sprite scale is reset
-        spriteRenderer.transform.localScale = new Vector3(1f, 1f, 1f);
-        spriteRenderer.sortingOrder = 1; // Set sorting order to 1
+
+        float newScale = NormalizeCharacterScale(spriteRenderer, 4f);
+        UpdateScaleClientRpc(newScale);
+
+
+        spriteRenderer.sortingOrder = 1;
         Debug.Log($"[NetworkPlayer] Assigned sprite {spriteIndex} to player {playerIndex.Value}");
     }
+
 
     public void changeToAngrySprite()
     {
@@ -102,21 +121,21 @@ public class NetworkPlayer : NetworkBehaviour
     {
         Vector3[] positions = new Vector3[]
         {
-                new Vector3(-3f, -2f, 0f),   // Player 1
-                new Vector3(-1f, -2f, 0f),  // Player 2
-                new Vector3(1f, -2f, 0f),   // Player 3
-                new Vector3(3f, -2f, 0f)   // Player 4
+                new Vector3(-3f, -0.5f, 0f),   // Player 1
+                new Vector3(-0f, -0.5f, 0f),  // Player 2
+                new Vector3(3f, -0.5f, 0f),   // Player 3
+                new Vector3(6f, -0.5f, 0f)   // Player 4
         };
 
         if (playerIndex.Value >= 0 && playerIndex.Value < positions.Length)
         {
             transform.position = positions[playerIndex.Value];
-            transform.localScale = new Vector3(2f, 2f, 1f); // Reset scale
+            //transform.localScale = new Vector3(2f, 2f, 1f); // Reset scale
             // For sprites with different sizes reset scale
-            if (playerIndex.Value >= 2)
-            {
-                transform.localScale = new Vector3(1f, 1f, 1f);
-            }
+            //if (playerIndex.Value >= 2)
+            //{
+                //transform.localScale = new Vector3(1f, 1f, 1f);
+            //}
             Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} positioned at {positions[playerIndex.Value]}");
         }
         else
