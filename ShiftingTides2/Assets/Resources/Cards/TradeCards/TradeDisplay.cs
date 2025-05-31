@@ -86,16 +86,16 @@ public class TradeDisplay : NetworkBehaviour
             return;
         }
         // Check if trades are loaded
-        if (HiddenCardManager.Instance.hiddenCards == null || HiddenCardManager.Instance.hiddenCards.Length == 0)
+        if (HiddenCardManager.Instance.hidden == null || HiddenCardManager.Instance.hidden.Length == 0)
         {
-            Debug.LogError("[TradeDisplayManager] No trades loaded. Cannot initialize trade display.");
+            Debug.LogError("[TradeDisplayManager] No hidden cards loaded. Cannot initialize hidden cards display.");
             return;
         }
 
         // Check if the player index is valid
         if (playerIndex < 0 || playerIndex >= 4)
         {
-            Debug.LogError($"[TradeDisplayManager] Invalid player index: {playerIndex}. Cannot initialize trade display.");
+            Debug.LogError($"[TradeDisplayManager] Invalid player index: {playerIndex}. Cannot initialize hidden cards display.");
             return;
         }
 
@@ -109,6 +109,22 @@ public class TradeDisplay : NetworkBehaviour
         hiddenCard.SetActive(true);
         hiddenDescription.text = assignedHidden.description;
 
-        Debug.Log($"[TradeDisplayManager] Trade Display initialized for player {playerIndex} with trade {assignedHidden}");
+        Debug.Log($"[TradeDisplayManager] Trade Display initialized for player {playerIndex} with hidden card {assignedHidden}");
+    }
+
+    [ClientRpc]
+    public void closeCardsClientRpc(Trade assignedTrade, HiddenCard assignedHidden)
+    {
+        tradeCard.SetActive(false);
+        hiddenCard.SetActive(false);
+    }
+
+    [ClientRpc]
+     public void revealCardsForAllClientRpc(Trade assignedTrade, HiddenCard assignedHidden)
+    {
+        tradeDescription.text = assignedTrade.description;
+        hiddenDescription.text = assignedHidden.description;
+        tradeCard.SetActive(true);
+        hiddenCard.SetActive(true);
     }
 }

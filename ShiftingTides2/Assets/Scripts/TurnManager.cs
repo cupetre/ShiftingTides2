@@ -5,6 +5,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
+// using UnityEditor.Rendering.LookDev;
 
 public class TurnManager : NetworkBehaviour
 {
@@ -180,7 +181,7 @@ public class TurnManager : NetworkBehaviour
         // usedTrades.Append(trade.id);
         currentTrade.Value = trade.id;
         Debug.Log($"[TurnManager] Player {playerIndex} is starting trade {trade.title} (ID: {trade.id})");
-
+        Debug.Log($"[TurnManager] Hidden Card: {hiddenCard.description}");
         StartCoroutine(TradeCoroutine(playerIndex, trade, hiddenCard));
     }
 
@@ -269,6 +270,7 @@ public class TurnManager : NetworkBehaviour
             totalSelfInfluence,
             isSelf: true);
 
+        tradeDisplay.revealCardsForAllClientRpc(trade, hiddenCard);
         // Apply others effects
         foreach (int otherPlayerId in playerYes)
         {
@@ -283,6 +285,7 @@ public class TurnManager : NetworkBehaviour
         }
         if (hiddenCard != null)
         {
+            Debug.Log("Applying Hidden Card Effects");
             ApplyHiddenCardEffects(playerIndex, hiddenCard);
 
         }
@@ -309,13 +312,13 @@ public class TurnManager : NetworkBehaviour
             Debug.Log($"[TurnManager] Trade completed for player {playerIndex}");
 
             // Player didn’t win, continue to EndTurnCoroutine
-            StartCoroutine(EndTurnCoroutine(playerIndex));
+            StartCoroutine(EndTurnCoroutine(playerIndex, trade, hiddenCard));
         }
-
+        tradeDisplay.closeCardsClientRpc(trade, hiddenCard);
         yield return null;
     }
 
-    private IEnumerator EndTurnCoroutine(int playerIndex)
+    private IEnumerator EndTurnCoroutine(int playerIndex, Trade trade, HiddenCard hiddenCard)
     {
         // Wait for the trade to be processed
         yield return new WaitForSeconds(5f);
@@ -378,31 +381,88 @@ public class TurnManager : NetworkBehaviour
         {
             playerYes[i] = voteManager.playerYes[i];
         }
-        if (((type == "compensation" || type == "against-one" || type == "against-all") && voteManager.playerYes.Count == hidden.counts) ||
+
+        if (((type == "compensation" || type == "against-one") && voteManager.playerYes.Count == hidden.counts) ||
         (type == "against-yes-voters" && voteManager.playerYes.Count >= hidden.counts))
         {
-            resourceManager.AddMoneyServerRpc(playerId, hidden.effect.selfMoney);
-            foreach (int yesVoter in playerYes)
+            if (hidden.effect.selfMoney != null)
             {
-                resourceManager.AddMoneyServerRpc(yesVoter, hidden.effect.othersMoney);
+                resourceManager.AddMoneyServerRpc(playerId, hidden.effect.selfMoney);
             }
-
-            foreach (int yesVoter in playerYes)
+            if (hidden.effect.othersMoney != null)
+            {
+                foreach (int yesVoter in playerYes)
+                {
+                    resourceManager.AddMoneyServerRpc(yesVoter, hidden.effect.othersMoney);
+                }
+            }
+            if (hidden.effect.selfPeople != null)
             {
                 resourceManager.AddPeopleServerRpc(playerId, hidden.effect.selfPeople);
-                resourceManager.AddPeopleServerRpc(yesVoter, hidden.effect.othersPeople);
             }
-
-            foreach (int yesVoter in playerYes)
+            if (hidden.effect.othersPeople != null)
+            {
+                foreach (int yesVoter in playerYes)
+                {
+                    resourceManager.AddPeopleServerRpc(yesVoter, hidden.effect.othersPeople);
+                }
+            }
+            if (hidden.effect.selfInfluence != null)
             {
                 resourceManager.AddInfluenceServerRpc(playerId, hidden.effect.selfInfluence);
-                resourceManager.AddInfluenceServerRpc(playerId, hidden.effect.othersInfluence);
+            }
+            if (hidden.effect.othersInfluence != null)
+            {
+                foreach (int yesVoter in playerYes)
+                {
+
+                    resourceManager.AddInfluenceServerRpc(yesVoter, hidden.effect.othersInfluence);
+                }
+            }
+        }
+        if ((type == "against-all") && voteManager.playerYes.Count == hidden.counts)
+        {
+            int[] playerNo = new int[voteManager.playerNo.Count];
+            for (int i = 0; i < voteManager.playerNo.Count; i++)
+            {
+                playerNo[i] = voteManager.playerNo[i];
+            }
+            if (hidden.effect.selfMoney != null)
+            {
+                resourceManager.AddMoneyServerRpc(playerId, hidden.effect.selfMoney);
+            }
+            if (hidden.effect.othersMoney != null)
+            {
+                foreach (int noVoter in playerNo)
+                {
+                    resourceManager.AddMoneyServerRpc(noVoter, hidden.effect.othersMoney);
+                }
+            }
+            if (hidden.effect.selfPeople != null)
+            {
+                resourceManager.AddPeopleServerRpc(playerId, hidden.effect.selfPeople);
+            }
+            if (hidden.effect.othersPeople != null)
+            {
+                foreach (int noVoter in playerNo)
+                {
+                    resourceManager.AddPeopleServerRpc(noVoter, hidden.effect.othersPeople);
+                }
+            }
+            if (hidden.effect.selfInfluence != null)
+            {
+                resourceManager.AddInfluenceServerRpc(playerId, hidden.effect.selfInfluence);
+            }
+            if (hidden.effect.othersInfluence != null)
+            {
+                foreach (int noVoter in playerNo)
+                {
+
+                    resourceManager.AddInfluenceServerRpc(noVoter, hidden.effect.othersInfluence);
+                }
             }
 
-
         }
-
-
 
     }
 

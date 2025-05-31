@@ -11,10 +11,10 @@ public class HiddenCardManager : MonoBehaviour
     [System.Serializable]
     public class HiddenArrayWrapper
     {
-        public HiddenCard[] hiddenCards;
+        public HiddenCard[] hidden;
     }
 
-    public HiddenCard[] hiddenCards;
+    public HiddenCard[] hidden;
     private bool hiddenLoaded = false;
 
     private HashSet<int> assignedHiddenCardsIndices = new HashSet<int>();
@@ -25,7 +25,7 @@ public class HiddenCardManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            StartCoroutine(LoadHiddenCards()); // Initialize hiddenCard loading
+            StartCoroutine(LoadHiddenCards()); // Initialize hiddenCard loading]
         }
         else
         {
@@ -35,7 +35,7 @@ public class HiddenCardManager : MonoBehaviour
     private IEnumerator LoadHiddenCards()
     {
         // Load JSON file from Resources
-        TextAsset jsonFile = Resources.Load<TextAsset>("Cards/hiddenCardCards/hiddenCard-cards");
+        TextAsset jsonFile = Resources.Load<TextAsset>("Cards/HiddenCards/hidden-cards");
         if (jsonFile == null)
         {
             Debug.LogError("[HiddenManager] JSON file not found");
@@ -47,11 +47,11 @@ public class HiddenCardManager : MonoBehaviour
             // Deserialize JSON data
             HiddenArrayWrapper wrapper = JsonUtility.FromJson<HiddenArrayWrapper>(jsonFile.text);
             //hidden = JsonHelper.FromJson<Hidden>(jsonFile.text);
-            hiddenCards = wrapper?.hiddenCards;
-            Debug.Log($"[HiddenManager] Loaded {hiddenCards?.Length} hidden");
-            Debug.Log($"[HiddenManager] Deserialized JSON: {JsonUtility.ToJson(hiddenCards, true)}");
+            hidden = wrapper?.hidden;
+            Debug.Log($"[HiddenManager] Loaded {hidden?.Length} hidden");
+            Debug.Log($"[HiddenManager] Deserialized JSON: {JsonUtility.ToJson(hidden, true)}");
 
-            if (hiddenCards == null || hiddenCards.Length == 0)
+            if (hidden == null || hidden.Length == 0)
             {
                 Debug.LogError("[HiddenManager] No hidden loaded. Check:");
                 Debug.LogError($"[HiddenManager] 1. JSON validity: {jsonFile.text}");
@@ -60,7 +60,7 @@ public class HiddenCardManager : MonoBehaviour
             else
             {
                 // Log all loaded hidden for debugging
-                foreach (var hiddenCard in hiddenCards)
+                foreach (var hiddenCard in hidden)
                 {
                     Debug.Log($"[HiddenManager] Loaded: {hiddenCard.title} (ID: {hiddenCard.id})");
                 }
@@ -83,13 +83,13 @@ public class HiddenCardManager : MonoBehaviour
 
     public HiddenCard GetRandomHiddenCard()
     {
-        if (!hiddenLoaded || hiddenCards == null) return null;
+        if (!hiddenLoaded || hidden == null) return null;
 
-        if (Random.Range(0, 3) == 0) 
-        {
-           return hiddenCards[Random.Range(0, hiddenCards.Length)];
+        // if (Random.Range(0, 3) == 0) 
+        // {
+           return hidden[Random.Range(0, hidden.Length)];
 
-        }
+        // }
 
         return null;
     }
