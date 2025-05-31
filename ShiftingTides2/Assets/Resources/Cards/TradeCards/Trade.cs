@@ -31,12 +31,12 @@ public class Trade : INetworkSerializable
 [System.Serializable]
 public class Effect : INetworkSerializable
     {
-    public int selfMoney = -1;
-    public int selfPeople = -1;
-    public int selfInfluence = -1;
-    public int othersMoney = -1;
-    public int othersPeople = -1;
-    public int othersInfluence = -1;
+    public int selfMoney = 0;
+    public int selfPeople = 0;
+    public int selfInfluence = 0;
+    public int othersMoney = 0;
+    public int othersPeople = 0;
+    public int othersInfluence = 0;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {

@@ -93,7 +93,7 @@ public class ResourceManager : NetworkBehaviour
     {
         money[playerIndex] += amount;
 
-        if (money[playerIndex] < 0)
+        if (money[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
             callLoseScene(playerIndex);
@@ -105,7 +105,7 @@ public class ResourceManager : NetworkBehaviour
     {
         people[playerIndex] += amount;
         
-        if (people[playerIndex] < 0)
+        if (people[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
             callLoseScene(playerIndex);
@@ -130,7 +130,7 @@ public class ResourceManager : NetworkBehaviour
 
         if (influenceCount != null)
         {
-            influenceCount.text = influence[playerIndex] + "%";
+            influenceCount.text = $"{influence[playerIndex]}%";
         }
     }
 

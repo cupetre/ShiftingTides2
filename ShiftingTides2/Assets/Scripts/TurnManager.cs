@@ -271,6 +271,19 @@ public class TurnManager : NetworkBehaviour
             isSelf: true);
 
         tradeDisplay.revealCardsForAllClientRpc(trade, hiddenCard);
+        float waitTime = 40f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < waitTime)
+        {
+            if (voteManager.voteDone.Value)
+            {
+                Debug.Log("[TurnManager] Vote completed.");
+                break;
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
         // Apply others effects
         foreach (int otherPlayerId in playerYes)
         {
@@ -313,6 +326,7 @@ public class TurnManager : NetworkBehaviour
 
             // Player didn’t win, continue to EndTurnCoroutine
             StartCoroutine(EndTurnCoroutine(playerIndex, trade, hiddenCard));
+            goalDisplay.UpdateProgressDisplay();
         }
         tradeDisplay.closeCardsClientRpc(trade, hiddenCard);
         yield return null;

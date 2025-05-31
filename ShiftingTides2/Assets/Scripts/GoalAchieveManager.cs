@@ -67,14 +67,14 @@ public class GoalAchieveManager : NetworkBehaviour
               && curInfluence >= goal.resources.influence
               && curPeople    >= goal.resources.people;
         }
-
+        goalDisplay.UpdateProgressDisplay();
         if (ok)
         {
             achieved[playerIndex] = true;
             return true;
         }
 
-        goalDisplay.UpdateProgressDisplay();
+        
     return false;
         
     }
