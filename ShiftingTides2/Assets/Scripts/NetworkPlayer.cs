@@ -2,11 +2,11 @@ using Unity.Netcode;
 using UnityEngine;
 
 public enum EmotionState
-    {
-        Neutral,
-        Happy,
-        Angry
-    }
+{
+    Neutral,
+    Happy,
+    Angry
+}
 public class NetworkPlayer : NetworkBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -46,20 +46,20 @@ public class NetworkPlayer : NetworkBehaviour
 
     }
     private void OnEmotionChanged(EmotionState oldValue, EmotionState newValue)
-{
-    switch (newValue)
     {
-        case EmotionState.Happy:
-            changeToHappySprite();
-            break;
-        case EmotionState.Angry:
-            changeToAngrySprite();
-            break;
-        default:
-            changeToNeutralSprite();
-            break;
+        switch (newValue)
+        {
+            case EmotionState.Happy:
+                changeToHappySprite();
+                break;
+            case EmotionState.Angry:
+                changeToAngrySprite();
+                break;
+            default:
+                changeToNeutralSprite();
+                break;
+        }
     }
-}
 
 
     private float NormalizeCharacterScale(SpriteRenderer renderer, float desiredHeight = 4f)
@@ -134,7 +134,7 @@ public class NetworkPlayer : NetworkBehaviour
             // For sprites with different sizes reset scale
             //if (playerIndex.Value >= 2)
             //{
-                //transform.localScale = new Vector3(1f, 1f, 1f);
+            //transform.localScale = new Vector3(1f, 1f, 1f);
             //}
             Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} positioned at {positions[playerIndex.Value]}");
         }
@@ -161,14 +161,18 @@ public class NetworkPlayer : NetworkBehaviour
     {
         lostScreenTransition = FindObjectOfType<ScreenTransition>();
 
+        if (lostScreenTransition != null)
+        {
+            lostScreenTransition.SetPlayerLostClientRpc(true, targetPlayerIndex); // sem StartCoroutine
+        }
+
         if (spriteRenderer != null && playerIndex.Value == targetPlayerIndex)
         {
             spriteRenderer.enabled = false;
             Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} sprite hidden on client.");
         }
-
-        lostScreenTransition?.SetPlayerLost(playerIndex.Value == targetPlayerIndex, targetPlayerIndex);
     }
+
 
 
 }

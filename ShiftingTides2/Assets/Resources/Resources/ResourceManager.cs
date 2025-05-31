@@ -51,6 +51,8 @@ public class ResourceManager : NetworkBehaviour
             return;
         }
         playerIndex = networkPlayer.playerIndex.Value;
+        influenceSlider.interactable = false;
+
     }
     public override void OnNetworkSpawn()
     {

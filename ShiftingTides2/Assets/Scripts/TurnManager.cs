@@ -269,21 +269,19 @@ public class TurnManager : NetworkBehaviour
             totalSelfPeople,
             totalSelfInfluence,
             isSelf: true);
+        goalDisplay.UpdateProgressDisplay();
 
         tradeDisplay.revealCardsForAllClientRpc(trade, hiddenCard);
-        float waitTime = 40f;
+        float waitTime = 5f;
         float elapsedTime = 0f;
 
         while (elapsedTime < waitTime)
         {
-            if (voteManager.voteDone.Value)
-            {
-                Debug.Log("[TurnManager] Vote completed.");
-                break;
-            }
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+        tradeDisplay.closeCardsClientRpc(trade, hiddenCard);
+
         // Apply others effects
         foreach (int otherPlayerId in playerYes)
         {
@@ -302,7 +300,6 @@ public class TurnManager : NetworkBehaviour
             ApplyHiddenCardEffects(playerIndex, hiddenCard);
 
         }
-
         bool checkWin = goalManager.CheckGoal(playerIndex);
 
         if (checkWin)
@@ -310,10 +307,7 @@ public class TurnManager : NetworkBehaviour
             Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal!");
 
             if (screenTransition != null)
-                screenTransition.SetPlayerWon(playerIndex);
-
-            if (goalDisplay != null)
-                goalDisplay.UpdateProgressDisplay();
+               screenTransition.SetPlayerWonClientRpc(playerIndex);
 
             tradeInProgress = false;
 
@@ -326,9 +320,7 @@ public class TurnManager : NetworkBehaviour
 
             // Player didn’t win, continue to EndTurnCoroutine
             StartCoroutine(EndTurnCoroutine(playerIndex, trade, hiddenCard));
-            goalDisplay.UpdateProgressDisplay();
         }
-        tradeDisplay.closeCardsClientRpc(trade, hiddenCard);
         yield return null;
     }
 

@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
+using System.Collections;
+
 
 public class ScreenTransition : NetworkBehaviour
 {
@@ -10,7 +12,7 @@ public class ScreenTransition : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI transitionText;
     [SerializeField] private float returnToMenuDelay = 10f;
 
-    private NetworkPlayer localPlayer;
+    private NetworkVariable<int> localPlayer;
 
     private void Awake()
     {
@@ -21,14 +23,20 @@ public class ScreenTransition : NetworkBehaviour
     private void Start()
     {
         // Get the local player reference
-        localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkPlayer>();
+        localPlayer.Value = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkPlayer>().playerIndex.Value;
     }
 
-    public void SetPlayerLost(bool lost, int targetPlayerIndex)
+    [ClientRpc]
+    public void SetPlayerLostClientRpc(bool lost, int targetPlayerIndex)
     {
-        if (transitionText == null || transitionImage == null) return;
+        StartCoroutine(HandlePlayerLost(lost, targetPlayerIndex));
+    }
 
-        if (localPlayer.playerIndex.Value == targetPlayerIndex)
+    private IEnumerator HandlePlayerLost(bool lost, int targetPlayerIndex)
+    {
+        if (transitionText == null || transitionImage == null) yield break;
+
+        if (localPlayer.Value == targetPlayerIndex)
         {
             transitionText.text = "YOU LOST";
         }
@@ -40,14 +48,25 @@ public class ScreenTransition : NetworkBehaviour
         transitionImage.gameObject.SetActive(true);
         transitionText.gameObject.SetActive(true);
 
-        StartCoroutine(ReturnToMenu());
+        yield return new WaitForSeconds(3f);
+
+        transitionImage.gameObject.SetActive(false);
+        transitionText.gameObject.SetActive(false);
+
+        yield return ReturnToMenu();
     }
 
-    public void SetPlayerWon(int targetPlayerIndex)
+    [ClientRpc]
+    public void SetPlayerWonClientRpc(int targetPlayerIndex)
     {
-        if (transitionText == null || transitionImage == null) return;
+        StartCoroutine(HandlePlayerWon(targetPlayerIndex));
+    }
 
-        if (localPlayer.playerIndex.Value == targetPlayerIndex)
+    private IEnumerator HandlePlayerWon(int targetPlayerIndex)
+    {
+        if (transitionText == null || transitionImage == null) yield break;
+
+        if (localPlayer.Value == targetPlayerIndex)
         {
             transitionText.text = "YOU WON!";
         }
@@ -59,8 +78,15 @@ public class ScreenTransition : NetworkBehaviour
         transitionImage.gameObject.SetActive(true);
         transitionText.gameObject.SetActive(true);
 
-        StartCoroutine(ReturnToMenu());
+        yield return new WaitForSeconds(3f);
+
+        transitionImage.gameObject.SetActive(false);
+        transitionText.gameObject.SetActive(false);
+
+        yield return ReturnToMenu();
     }
+
+
 
     private System.Collections.IEnumerator ReturnToMenu()
     {
@@ -68,4 +94,5 @@ public class ScreenTransition : NetworkBehaviour
         NetworkManager.Singleton.Shutdown();
         SceneManager.LoadScene("MainMenuScene");
     }
+
 }

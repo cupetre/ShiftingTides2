@@ -49,6 +49,34 @@ public class GoalDisplay : NetworkBehaviour
         InitializeGoalDisplay();
         UpdateProgressDisplay();
     }
+    private void OnEnable()
+    {
+        if (resourceManager != null)
+        {
+            resourceManager.money.OnListChanged += OnResourceChanged;
+            resourceManager.people.OnListChanged += OnResourceChanged;
+            resourceManager.influence.OnListChanged += OnResourceChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (resourceManager != null)
+        {
+            resourceManager.money.OnListChanged -= OnResourceChanged;
+            resourceManager.people.OnListChanged -= OnResourceChanged;
+            resourceManager.influence.OnListChanged -= OnResourceChanged;
+        }
+    }
+
+    private void OnResourceChanged(NetworkListEvent<int> change)
+    {
+        UpdateProgressDisplay();
+    }
+    private void OnResourceChanged(NetworkListEvent<float> change)
+    {
+        UpdateProgressDisplay();
+    }
 
     private void InitializeGoalDisplay()
     {
