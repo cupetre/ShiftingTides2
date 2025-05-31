@@ -159,19 +159,13 @@ public class NetworkPlayer : NetworkBehaviour
     [ClientRpc]
     public void HandleLostClientRpc(int targetPlayerIndex)
     {
-        lostScreenTransition = FindObjectOfType<ScreenTransition>();
-
-        if (lostScreenTransition != null)
-        {
-            lostScreenTransition.SetPlayerLostClientRpc(true, targetPlayerIndex); // sem StartCoroutine
-        }
-
         if (spriteRenderer != null && playerIndex.Value == targetPlayerIndex)
         {
             spriteRenderer.enabled = false;
             Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} sprite hidden on client.");
         }
     }
+
 
 
 

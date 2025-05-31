@@ -12,9 +12,7 @@ public class GoalDisplay : NetworkBehaviour
     private GameObject playerObject;
     private NetworkPlayer networkPlayer;
     public GameObject goalCard;
-
     public GameObject progressCard;
-
     public TMP_Text progressText;
 
     private ulong clientId;
@@ -23,44 +21,47 @@ public class GoalDisplay : NetworkBehaviour
 
     private Goal assignedGoal;
     private ResourceManager resourceManager;
+
     private void Start()
     {
+        // 1) Encontra o ResourceManager
         resourceManager = FindFirstObjectByType<ResourceManager>();
-        // Get the client ID and player index
-        clientId = NetworkManager.Singleton.LocalClientId;
+        if (resourceManager == null)
+        {
+            Debug.LogError("[GoalDisplay] ResourceManager não encontrado.");
+            return;
+        }
 
-        // Find the player through the NetworkManager
+        // 2) Inscreve-se nos eventos de mudança de lista
+        resourceManager.money.OnListChanged += OnResourceChanged;
+        resourceManager.people.OnListChanged += OnResourceChanged;
+        resourceManager.influence.OnListChanged += OnResourceChanged;
+
+        // 3) Pega o NetworkPlayer do cliente local
+        clientId = NetworkManager.Singleton.LocalClientId;
         playerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
         if (playerObject == null)
         {
-            Debug.LogError("[GoalDisplayManager] Player object not found.");
+            Debug.LogError("[GoalDisplay] Player object not found.");
             return;
         }
-        // Get the player index from the NetworkPlayer component
+
         networkPlayer = playerObject.GetComponent<NetworkPlayer>();
         if (networkPlayer == null)
         {
-            Debug.LogError("[GoalDisplayManager] NetworkPlayer component not found on player object.");
+            Debug.LogError("[GoalDisplay] NetworkPlayer component not found on player object.");
             return;
         }
         playerIndex = networkPlayer.playerIndex.Value;
 
-        // Initialize the assignedGoal display
+        // 4) Inicializa a exibição de goal e a progress
         InitializeGoalDisplay();
         UpdateProgressDisplay();
     }
-    private void OnEnable()
-    {
-        if (resourceManager != null)
-        {
-            resourceManager.money.OnListChanged += OnResourceChanged;
-            resourceManager.people.OnListChanged += OnResourceChanged;
-            resourceManager.influence.OnListChanged += OnResourceChanged;
-        }
-    }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
+        // Desinscrever para evitar vazamentos de memória
         if (resourceManager != null)
         {
             resourceManager.money.OnListChanged -= OnResourceChanged;
@@ -73,6 +74,7 @@ public class GoalDisplay : NetworkBehaviour
     {
         UpdateProgressDisplay();
     }
+
     private void OnResourceChanged(NetworkListEvent<float> change)
     {
         UpdateProgressDisplay();
@@ -80,87 +82,67 @@ public class GoalDisplay : NetworkBehaviour
 
     private void InitializeGoalDisplay()
     {
-        // Check if goals are loaded
         if (GoalManager.Instance.goals == null || GoalManager.Instance.goals.Length == 0)
         {
-            Debug.LogError("[GoalDisplayManager] No goals loaded. Cannot initialize assignedGoal display.");
+            Debug.LogError("[GoalDisplay] No goals loaded. Cannot initialize assignedGoal display.");
             return;
         }
 
-        // Check if the player index is valid
-        if (playerIndex < 0 || playerIndex >= 4)
-        {
-            Debug.LogError($"[GoalDisplayManager] Invalid player index: {playerIndex}. Cannot initialize assignedGoal display.");
-            return;
-        }
-
-        // Get the assignedGoal for the player
         indexGoal = networkPlayer.goalIndex.Value;
-
         if (indexGoal < 0 || indexGoal >= GoalManager.Instance.goals.Length)
         {
-            Debug.LogError($"[GoalDisplayManager] Invalid assignedGoal index: {indexGoal}. Cannot initialize assignedGoal display.");
+            Debug.LogError($"[GoalDisplay] Invalid goal index: {indexGoal}");
             return;
         }
 
         assignedGoal = GoalManager.Instance.goals[indexGoal];
-
-        // Set the assignedGoal title and description
         goalTitle.text = assignedGoal.title;
         goalDescription.text = assignedGoal.description;
-        Debug.Log($"[GoalDisplayManager] Goal Display initialized for player {playerIndex} with assignedGoal {indexGoal}");
+        Debug.Log($"[GoalDisplay] Goal Display initialized for player {playerIndex} with assignedGoal {indexGoal}");
 
+        // Fecha a tela de goal após 10 segundos e exibe a progressCard
         StartCoroutine(CloseGoalCard());
     }
 
     public void UpdateProgressDisplay()
     {
+        if (assignedGoal == null) return;
+
         int curMoney = resourceManager.GetMoney(playerIndex);
         int curInfluence = resourceManager.GetInfluence(playerIndex);
         int curPeople = resourceManager.GetPeople(playerIndex);
 
-        progressText.text = ""; // Initialize or clear previous text
+        progressText.text = "";
+
+        // Apenas trata goals do tipo Self; se seu goal for de outro tipo,
+        // é preciso implementar outra lógica aqui
         if (assignedGoal.Target == Goal.TargetType.Self)
         {
-
-            if (assignedGoal.resources.money <= curMoney || assignedGoal.resources.money == 0)
-            {
-                progressText.text += "OK!\n";
-            }
+            // Dinheiro
+            if (curMoney >= assignedGoal.resources.money || assignedGoal.resources.money == 0)
+                progressText.text += "Money: OK!\n";
             else
-            {
-                progressText.text += $"{curMoney}/{assignedGoal.resources.money}\n";
-            }
+                progressText.text += $"Money: {curMoney}/{assignedGoal.resources.money}\n";
 
-
-            if (assignedGoal.resources.people <= curPeople || assignedGoal.resources.people == 0)
-            {
-                progressText.text += "OK!\n";
-            }
+            // Pessoas
+            if (curPeople >= assignedGoal.resources.people || assignedGoal.resources.people == 0)
+                progressText.text += "People: OK!\n";
             else
-            {
-                progressText.text += $"{curPeople}/{assignedGoal.resources.people}\n";
-            }
+                progressText.text += $"People: {curPeople}/{assignedGoal.resources.people}\n";
 
-            if (assignedGoal.resources.influence <= curInfluence || assignedGoal.resources.influence == 0)
-            {
-                progressText.text += "OK!\n";
-            }
+            // Influência
+            if (curInfluence >= assignedGoal.resources.influence || assignedGoal.resources.influence == 0)
+                progressText.text += "Influence: OK!\n";
             else
-            {
-                progressText.text += $"{curInfluence}/{assignedGoal.resources.influence}";
-            }
-
-
+                progressText.text += $"Influence: {curInfluence}/{assignedGoal.resources.influence}\n";
         }
 
+        Debug.Log($"[GoalDisplay] Progress updated para o Player {playerIndex}: \n{progressText.text}");
     }
 
     private IEnumerator CloseGoalCard()
     {
-        // Wait for 10 seconds
         yield return new WaitForSeconds(10f);
-        // Close the assignedGoal card
         goalCard.SetActive(false);
         progressCard.SetActive(true);
     }

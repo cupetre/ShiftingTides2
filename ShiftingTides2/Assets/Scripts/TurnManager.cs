@@ -46,7 +46,6 @@ public class TurnManager : NetworkBehaviour
         resourceManager = FindFirstObjectByType<ResourceManager>();
         goalManager = FindFirstObjectByType<GoalAchieveManager>();
         tradeDisplay = FindFirstObjectByType<TradeDisplay>();
-        screenTransition = FindFirstObjectByType<ScreenTransition>();
         goalDisplay = FindFirstObjectByType<GoalDisplay>();
 
         // Find vote manager instance in the scene
@@ -77,6 +76,10 @@ public class TurnManager : NetworkBehaviour
             Debug.LogError("[TurnManager] VoteManager instance not found.");
             return;
         }
+
+        screenTransition = FindFirstObjectByType<ScreenTransition>();
+        if (screenTransition == null)
+            Debug.LogError("[TurnManager] ScreenTransition não encontrado.");
 
         trades = tradeManager.trades;
         clientIds = gameManager.clientIds.Value.ToArray();
@@ -169,8 +172,7 @@ public class TurnManager : NetworkBehaviour
         HiddenCard hiddenCard = HiddenCardManager.Instance.GetRandomHiddenCard();
 
         // Make the player in turn object larger
-        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
-        players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * 2.0f, currScale.y * 2.0f, 1.0f);
+        scalePlayerClientRpc(false, playerIndex);
 
         // while (usedTrades.Contains(trade.id))
         // {
@@ -183,6 +185,21 @@ public class TurnManager : NetworkBehaviour
         Debug.Log($"[TurnManager] Player {playerIndex} is starting trade {trade.title} (ID: {trade.id})");
         Debug.Log($"[TurnManager] Hidden Card: {hiddenCard.description}");
         StartCoroutine(TradeCoroutine(playerIndex, trade, hiddenCard));
+    }
+
+    [ClientRpc]
+    private void scalePlayerClientRpc(bool tradeEnd, int playerIndex)
+    {
+        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
+        if (tradeEnd)
+        {
+            players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x / 2.0f, currScale.y / 2.0f, 1.0f);
+        }
+        else
+        {
+            players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * 2.0f, currScale.y * 2.0f, 1.0f);
+        }
+
     }
 
     private IEnumerator TradeCoroutine(int playerIndex, Trade trade, HiddenCard hiddenCard)
@@ -299,15 +316,25 @@ public class TurnManager : NetworkBehaviour
             Debug.Log("Applying Hidden Card Effects");
             ApplyHiddenCardEffects(playerIndex, hiddenCard);
 
-        }
-        bool checkWin = goalManager.CheckGoal(playerIndex);
 
-        if (checkWin)
+        }
+        bool checkWin = false;
+        int winnerIndex = -1;
+        for (int i = 0; i < numPlayers; i++)
         {
-            Debug.Log($"[GoalAchieveManager] Player {playerIndex} achieved the goal!");
+            checkWin = goalManager.CheckGoal(i);
+            if (checkWin)
+            {
+                winnerIndex = i;
+                break;
+            }
+        }
+        if (checkWin && winnerIndex != -1)
+        {
+            Debug.Log($"[GoalAchieveManager] Player {winnerIndex} achieved the goal!");
 
             if (screenTransition != null)
-               screenTransition.SetPlayerWonClientRpc(playerIndex);
+                screenTransition.SetPlayerWonClientRpc(winnerIndex);
 
             tradeInProgress = false;
 

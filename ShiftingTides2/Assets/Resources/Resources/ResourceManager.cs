@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
 using System;
+
 public class ResourceManager : NetworkBehaviour
 {
     public NetworkList<int> money;
@@ -15,13 +16,12 @@ public class ResourceManager : NetworkBehaviour
     public TextMeshProUGUI peopleCount;
     public Slider influenceSlider;
     public TextMeshProUGUI influenceCount;
+
     private GameObject playerObject;
     private NetworkPlayer networkPlayer;
 
     private ulong clientId;
     private int playerIndex;
-
-
 
     void Awake()
     {
@@ -33,17 +33,15 @@ public class ResourceManager : NetworkBehaviour
 
     private void Start()
     {
-        // Get the client ID and player index
+        
         clientId = NetworkManager.Singleton.LocalClientId;
 
-        // Find the player through the NetworkManager
         playerObject = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject.gameObject;
         if (playerObject == null)
         {
             Debug.LogError("[ResourceManager] Player object not found.");
             return;
         }
-        // Get the player index from the NetworkPlayer component
         networkPlayer = playerObject.GetComponent<NetworkPlayer>();
         if (networkPlayer == null)
         {
@@ -52,17 +50,17 @@ public class ResourceManager : NetworkBehaviour
         }
         playerIndex = networkPlayer.playerIndex.Value;
         influenceSlider.interactable = false;
-
     }
+
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
             for (int i = 0; i < 4; i++)
             {
-                money.Add(70);
-                people.Add(70);
-                influence.Add(60f);
+                money.Add(10);
+                people.Add(10);
+                influence.Add(10f);
                 loseList.Add(false);
             }
         }
@@ -77,17 +75,17 @@ public class ResourceManager : NetworkBehaviour
     private void OnResourceChanged(NetworkListEvent<int> changeEvent)
     {
         if (changeEvent.Index == playerIndex)
-    {
-        UpdateUI();
-    }
+        {
+            UpdateUI();
+        }
     }
 
     private void OnResourceChanged(NetworkListEvent<float> changeEvent)
     {
         if (changeEvent.Index == playerIndex)
-    {
-        UpdateUI();
-    }
+        {
+            UpdateUI();
+        }
     }
 
     [ServerRpc]
@@ -98,7 +96,8 @@ public class ResourceManager : NetworkBehaviour
         if (money[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
-            callLoseScene(playerIndex);
+            
+            ShowLoseTransitionForAllClients(playerIndex);
         }
     }
 
@@ -110,7 +109,8 @@ public class ResourceManager : NetworkBehaviour
         if (people[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
-            callLoseScene(playerIndex);
+            networkPlayer.HandleLostClientRpc(playerIndex);
+            ShowLoseTransitionForAllClients(playerIndex);
         }
     }
 
@@ -118,13 +118,25 @@ public class ResourceManager : NetworkBehaviour
     public void AddInfluenceServerRpc(int playerIndex, int amount)
     {
         influence[playerIndex] = Mathf.Clamp(influence[playerIndex] + amount, 0, 100);
-
     }
 
+    void ShowLoseTransitionForAllClients(int targetPlayerIndex)
+    {
+        
+        var screenTransition = FindFirstObjectByType<ScreenTransition>();
+        if (screenTransition != null)
+        {
+            screenTransition.SetPlayerLostClientRpc(true, targetPlayerIndex);
+        }
+        else
+        {
+            Debug.LogError("[ResourceManager] ScreenTransition não encontrado no servidor!");
+        }
+    }
 
     void UpdateUI()
     {
-        if (!IsOwner && !IsClient) return;   //optional, avoids running on the server or other client that is not the owner
+        if (!IsOwner && !IsClient) return;   
 
         moneyCount.text = money[playerIndex].ToString();
         peopleCount.text = people[playerIndex].ToString();
@@ -150,11 +162,4 @@ public class ResourceManager : NetworkBehaviour
     {
         return Mathf.RoundToInt(influence[playerIndex]);
     }
-
-    public void callLoseScene(int targetPlayerIndex)
-    {
-        networkPlayer.HandleLostClientRpc(targetPlayerIndex);   
-
-    }
-
 }

@@ -6,8 +6,8 @@ public class GoalAchieveManager : NetworkBehaviour
 {
     [Tooltip("For each player: false = not achieved; true = achieved")]
     public NetworkList<bool> achieved = new NetworkList<bool>(
-        default, 
-        NetworkVariableReadPermission.Everyone, 
+        default,
+        NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
 
@@ -18,14 +18,14 @@ public class GoalAchieveManager : NetworkBehaviour
     [SerializeField] private GameObject LostCut;
     [SerializeField] private GameObject ProgressCard;
     private ScreenTransition screenTransition;
-    
+
     private GoalDisplay goalDisplay;
 
     void Awake()
     {
         resourceManager = FindFirstObjectByType<ResourceManager>();
-        gameManager     = FindFirstObjectByType<GameManager>();
-        goalManager     = FindFirstObjectByType<GoalManager>();
+        gameManager = FindFirstObjectByType<GameManager>();
+        goalManager = FindFirstObjectByType<GoalManager>();
         screenTransition = LostCut.GetComponent<ScreenTransition>();
         goalDisplay = FindFirstObjectByType<GoalDisplay>();
     }
@@ -49,33 +49,33 @@ public class GoalAchieveManager : NetworkBehaviour
 
         // Get the players goal
         var playerObject = gameManager.playerObjects[playerIndex];
-        var netPlayer    = playerObject.GetComponent<NetworkPlayer>();
-        int goalIdx      = netPlayer.goalIndex.Value;
-        var goal         = goalManager.GetGoal(goalIdx);
+        var netPlayer = playerObject.GetComponent<NetworkPlayer>();
+        int goalIdx = netPlayer.goalIndex.Value;
+        var goal = goalManager.GetGoal(goalIdx);
         if (goal == null) return false;
 
         // Current player resources
-        int curMoney     = resourceManager.GetMoney(playerIndex);
+        int curMoney = resourceManager.GetMoney(playerIndex);
         int curInfluence = resourceManager.GetInfluence(playerIndex);
-        int curPeople    = resourceManager.GetPeople(playerIndex);
+        int curPeople = resourceManager.GetPeople(playerIndex);
+        goalDisplay.UpdateProgressDisplay();
 
         bool ok = false;
         // Goal targeting self
         if (goal.Target == Goal.TargetType.Self)
         {
-            ok = curMoney     >= goal.resources.money
+            ok = curMoney >= goal.resources.money
               && curInfluence >= goal.resources.influence
-              && curPeople    >= goal.resources.people;
+              && curPeople >= goal.resources.people;
         }
-        goalDisplay.UpdateProgressDisplay();
         if (ok)
         {
             achieved[playerIndex] = true;
             return true;
         }
 
-        
-    return false;
-        
+
+        return false;
+
     }
 }
