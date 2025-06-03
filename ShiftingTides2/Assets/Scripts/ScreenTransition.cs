@@ -4,7 +4,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using System.Collections;
-
+using Unity.Collections;
 public class ScreenTransition : NetworkBehaviour
 {
     [Header("Referências de UI")]
@@ -13,13 +13,15 @@ public class ScreenTransition : NetworkBehaviour
     [SerializeField] private float returnToMenuDelay = 10f;
 
     private int localPlayerIndex = -1;
-
-    private void Awake()
+    private NetworkList<FixedString128Bytes> playerNames;
+    
+     private void Awake()
     {
         transitionImage.gameObject.SetActive(false);
         transitionText.gameObject.SetActive(false);
         if (transitionImage != null) transitionImage.gameObject.SetActive(false);
         if (transitionText != null) transitionText.gameObject.SetActive(false);
+        playerNames = new NetworkList<FixedString128Bytes>();
     }
 
     private void Start()
@@ -33,6 +35,7 @@ public class ScreenTransition : NetworkBehaviour
                 if (netPlayer != null)
                 {
                     localPlayerIndex = netPlayer.playerIndex.Value;
+                    playerNames[localPlayerIndex] = netPlayer.playerName.Value;
                     Debug.Log($"[ScreenTransition] Cliente inicializado como Player {localPlayerIndex}");
                     return;
                 }
@@ -62,7 +65,7 @@ public class ScreenTransition : NetworkBehaviour
         }
         else
         {
-            transitionText.text = $"Player {targetPlayerIndex + 1} lost";
+            transitionText.text = $"Player {playerNames[targetPlayerIndex]} lost";
         }
 
         transitionImage.gameObject.SetActive(true);
@@ -82,7 +85,7 @@ public class ScreenTransition : NetworkBehaviour
     [ClientRpc]
     public void SetPlayerWonClientRpc(int targetPlayerIndex)
     {
-        Debug.Log($"[ScreenTransition] SetPlayerWonClientRpc chamado no cliente {localPlayerIndex}. targetPlayerIndex = {targetPlayerIndex}");
+        Debug.Log($"[ScreenTransition] SetPlayerWonClientRpc chamado no cliente {localPlayerIndex}. targetPlayer = {playerNames[targetPlayerIndex]}");
         StartCoroutine(HandlePlayerWon(targetPlayerIndex));
     }
 
@@ -100,7 +103,7 @@ public class ScreenTransition : NetworkBehaviour
         }
         else
         {
-            transitionText.text = $"Player {targetPlayerIndex + 1} won the game";
+            transitionText.text = $"Player {playerNames[targetPlayerIndex]} won the game";
         }
 
         transitionImage.gameObject.SetActive(true);
