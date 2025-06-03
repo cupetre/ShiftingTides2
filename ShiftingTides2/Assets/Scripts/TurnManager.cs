@@ -35,6 +35,19 @@ public class TurnManager : NetworkBehaviour
     public bool turnActive = false;
     public int[] usedTrades;
 
+    //timer variables
+    [SerializeField] private TMP_Text timerText; // Assign in inspector (optional, if UI is needed)
+    private Coroutine timerCoroutine;
+    [SerializeField] private float turnDuration = 45f;
+    private NetworkVariable<float> remainingTime = new(writePerm: NetworkVariableWritePermission.Server);
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsClient)
+        {
+            remainingTime.OnValueChanged += UpdateTimerUI;
+        }
+    }
     void Start()
     {
         if (!IsServer) return;
@@ -174,14 +187,8 @@ public class TurnManager : NetworkBehaviour
         // Make the player in turn object larger
         scalePlayerClientRpc(false, playerIndex);
 
-        // while (usedTrades.Contains(trade.id))
-        // {
-        //     Debug.LogError($"[TurnManager] Trade {trade.id} has already been used. Getting new one");
-        //     trade = tradeManager.GetRandomTrade();
-        // }
-
-        // usedTrades.Append(trade.id);
         currentTrade.Value = trade.id;
+
         Debug.Log($"[TurnManager] Player {playerIndex} is starting trade {trade.title} (ID: {trade.id})");
         Debug.Log($"[TurnManager] Hidden Card: {hiddenCard.description}");
         StartCoroutine(TradeCoroutine(playerIndex, trade, hiddenCard));
@@ -234,27 +241,33 @@ public class TurnManager : NetworkBehaviour
         // Hide vote buttons for current player if that is intentional
         voteManager.HideVoteButtonsClientRpc(clientIds[playerIndex]);
 
-        float waitTime = 40f;
-        float elapsedTime = 0f;
+        timerCoroutine = StartCoroutine(TurnTimerRoutine(playerIndex, trade, hiddenCard));
+    }
 
-        while (elapsedTime < waitTime)
+    private IEnumerator TurnTimerRoutine(int playerIndex, Trade trade, HiddenCard hiddenCard)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < turnDuration)
         {
             if (voteManager.voteDone.Value)
             {
-                Debug.Log("[TurnManager] Vote completed.");
+                Debug.Log("[TurnManager] All players voted. Ending turn early.");
                 break;
             }
-            elapsedTime += Time.deltaTime;
+
+            remainingTime.Value = turnDuration - elapsed;
+
+            elapsed += Time.deltaTime;
             yield return null;
         }
 
-        Debug.Log($"[TurnManager] Vote completed or timed out. Elapsed time: {elapsedTime}");
+        remainingTime.Value = 0f;
 
         voteManager.HideVoteButtonsClientRpc();
 
         StartCoroutine(ProcessTrade(playerIndex, trade, hiddenCard));
     }
-
     private IEnumerator ProcessTrade(int playerIndex, Trade trade, HiddenCard hiddenCard)
     {
         Debug.Log($"[TurnManager] Processing trade for player {playerIndex} with trade {trade.title}");
@@ -497,6 +510,14 @@ public class TurnManager : NetworkBehaviour
 
         }
 
+    }
+
+    private void UpdateTimerUI(float oldValue, float newValue)
+    {
+        if (timerText != null)
+        {
+            timerText.text = "Remaining time: " + Mathf.CeilToInt(newValue) + "s";
+        }
     }
 
 }
