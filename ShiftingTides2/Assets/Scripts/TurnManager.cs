@@ -11,7 +11,6 @@ public class TurnManager : NetworkBehaviour
 {
     public int numPlayers = 4;
     private bool tradeInProgress = false;
-
     public List<GameObject> players = new List<GameObject>();
 
     private TradeManager tradeManager;
@@ -516,7 +515,7 @@ public class TurnManager : NetworkBehaviour
     {
         if (timerText != null)
         {
-            timerText.text = "Remaining time: " + Mathf.CeilToInt(newValue) + "s";
+            timerText.text =Mathf.CeilToInt(newValue) + "s";
         }
     }
 

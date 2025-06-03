@@ -1,5 +1,8 @@
+using TMPro;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public enum EmotionState
 {
@@ -12,6 +15,10 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Character[] playerSprites; // 4 sprites
     [SerializeField] private ScreenTransition lostScreenTransition;
+    [SerializeField] private TMP_Text nameText;
+    
+    public NetworkVariable<FixedString128Bytes> playerName = new NetworkVariable<FixedString128Bytes>(
+    "", NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<EmotionState> emotionState = new NetworkVariable<EmotionState>(
         EmotionState.Neutral,
         NetworkVariableReadPermission.Everyone,
@@ -30,8 +37,13 @@ public class NetworkPlayer : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (hasSpawned) return; // Prevent multiple spawns
+        if (hasSpawned) return;
         hasSpawned = true;
+
+        if (IsOwner)
+        {
+            SetNameServerRpc(RelayManager.PlayerName);
+        }
 
         if (playerIndex.Value >= 0)
         {
@@ -41,10 +53,27 @@ public class NetworkPlayer : NetworkBehaviour
 
         playerIndex.OnValueChanged += OnPlayerIndexChanged;
         emotionState.OnValueChanged += OnEmotionChanged;
+        playerName.OnValueChanged += OnPlayerNameChanged;
 
         OnEmotionChanged(emotionState.Value, EmotionState.Neutral);
+        nameText.text = playerName.Value.ToString();
+
+        Debug.Log($"[NetworkPlayer] OnNetworkSpawn for ClientID: {OwnerClientId}, Name: {playerName.Value}");
+    }
+
+    private void OnPlayerNameChanged(FixedString128Bytes previous, FixedString128Bytes current)
+    {
+        nameText.text = current.ToString();
 
     }
+
+    [ServerRpc]
+    private void SetNameServerRpc(string name)
+    {
+        playerName.Value = new FixedString128Bytes(name);
+        Debug.Log($"[NetworkPlayer] Set name on server: {name}");
+    }
+
     private void OnEmotionChanged(EmotionState oldValue, EmotionState newValue)
     {
         switch (newValue)

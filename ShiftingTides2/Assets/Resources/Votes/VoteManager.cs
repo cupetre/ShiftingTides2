@@ -19,7 +19,6 @@ public class VoteManager : NetworkBehaviour
 
     private void Awake()
     {
-
         playerYes = new NetworkList<int>();
         playerNo = new NetworkList<int>();
     }

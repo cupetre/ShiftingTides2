@@ -15,16 +15,20 @@ public class RelayManager : MonoBehaviour
     [SerializeField] Button joinButton;
     [SerializeField] TMP_InputField joinInput;
     [SerializeField] TextMeshProUGUI codeText;
+    [SerializeField] TMP_InputField nameInputField;
+    public static string PlayerName { get; private set; }
 
     async void Start()
     {
         await UnityServices.InitializeAsync();
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
-        hostButton.onClick.AddListener(async () => {
+        hostButton.onClick.AddListener(async () =>
+        {
+            PlayerName = nameInputField.text;
             var allocation = await RelayService.Instance.CreateAllocationAsync(3);
-            var joinCode   = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-            codeText.text  = $"Code: {joinCode}";
+            var joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            codeText.text = $"Code: {joinCode}";
 
             // Converte para RelayServerData
             var relayData = AllocationUtils.ToRelayServerData(allocation, "dtls");
@@ -33,9 +37,11 @@ public class RelayManager : MonoBehaviour
             NetworkManager.Singleton.StartHost();
         });
 
-        joinButton.onClick.AddListener(async () => {
+        joinButton.onClick.AddListener(async () =>
+        {
+            PlayerName = nameInputField.text;
             var allocation = await RelayService.Instance.JoinAllocationAsync(joinInput.text);
-            var relayData  = AllocationUtils.ToRelayServerData(allocation, "dtls");
+            var relayData = AllocationUtils.ToRelayServerData(allocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>()
                          .SetRelayServerData(relayData);
             NetworkManager.Singleton.StartClient();
