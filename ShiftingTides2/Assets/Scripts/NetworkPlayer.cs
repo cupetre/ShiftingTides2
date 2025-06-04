@@ -166,6 +166,42 @@ public class NetworkPlayer : NetworkBehaviour
             //transform.localScale = new Vector3(1f, 1f, 1f);
             //}
             Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} positioned at {positions[playerIndex.Value]}");
+
+            Canvas playerCanvas = gameObject.GetComponentInChildren<Canvas>();
+            if (playerCanvas != null)
+            {
+                // Get the text component from the canvas
+                TextMeshProUGUI playerText = playerCanvas.GetComponentInChildren<TextMeshProUGUI>();
+                if (playerText != null)
+                {
+                    // Set the text to the player index if name not set in NetworkPlayer
+                    string playerNameString = playerName.Value.ToString();
+                    playerText.text = playerNameString;
+                    if (string.IsNullOrEmpty(playerNameString))
+                    {
+                        playerText.text = $"Player {playerIndex.Value + 1}";
+                        playerName.Value = new FixedString128Bytes(playerText.text); // Update playerName on server
+                    }
+                    Debug.Log($"[GameManager] Set player {playerIndex.Value + 1} text to '{playerText.text}'");
+
+                    // Set the position of the text to be below the player sprite, using values from an array of positions based on top, bottom, left, right
+                    // Position 1: Left 200, Right 500, Top 330, Botton 130
+                    Vector2[] textPositions = new Vector2[]
+                    {
+                            new Vector2(-320.0f, -300.0f),
+                            new Vector2(-0.0f, -300.0f),
+                            new Vector2(320.0f, -300.0f),
+                            new Vector2(640.0f, -300.0f),
+                    };
+
+                    playerText.rectTransform.anchoredPosition = textPositions[playerIndex.Value];
+                    playerText.fontSize = 36;
+                }
+                else
+                {
+                    Debug.LogError("[GameManager] Player canvas does not have a TextMeshProUGUI component.");
+                }
+            }
         }
         else
         {

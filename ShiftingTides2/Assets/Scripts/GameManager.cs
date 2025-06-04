@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using TMPro;
+using Unity.Collections;
 
 public class GameManager : NetworkBehaviour
 {
@@ -70,6 +72,46 @@ public class GameManager : NetworkBehaviour
                     new Vector3(2f, -1f, 0f)    // Player 4
                 };
                 playerObjects[i].transform.position = positions[i];
+
+                Canvas playerCanvas = playerObjects[i].GetComponentInChildren<Canvas>();
+                if (playerCanvas != null)
+                {
+                    // Get the text component from the canvas
+                    TextMeshProUGUI playerText = playerCanvas.GetComponentInChildren<TextMeshProUGUI>();
+                    if (playerText != null)
+                    {
+                        // Set the text to the player index if name not set in NetworkPlayer
+                        NetworkPlayer networkPlayer = playerObjects[i].GetComponent<NetworkPlayer>();
+                        FixedString128Bytes playerName = networkPlayer != null ? networkPlayer.playerName.Value : new FixedString128Bytes($"Player {i + 1}");
+                        string playerNameString = playerName.ToString();
+                        playerText.text = playerNameString;
+                        Debug.Log($"[GameManager] Set player {i + 1} text to '{playerText.text}'");
+
+                        // Set the position of the text to be below the player sprite, using values from an array of positions based on top, bottom, left, right
+                        // Position 1: Left 200, Right 500, Top 330, Botton 130
+                        Vector2[] textPositions = new Vector2[]
+                        {
+                            new Vector2(-150.0f, -150.0f),
+                            new Vector2(-50.0f, -150.0f),
+                            new Vector2(50.0f, -150.0f),
+                            new Vector2(150.0f, -150.0f)
+                        };
+
+                        if (i < textPositions.Length)
+                        {
+                            playerText.rectTransform.anchoredPosition = textPositions[i];
+                            Debug.Log($"[GameManager] Set player {i + 1} text position to {textPositions[i]}");
+                        }
+                        else
+                        {
+                            Debug.LogError($"[GameManager] Invalid player index {i} for text position.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("[GameManager] Player canvas does not have a TextMeshProUGUI component.");
+                    }
+                }
             }
         }
     }

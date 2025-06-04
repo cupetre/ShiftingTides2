@@ -3,9 +3,14 @@ using TMPro;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
+using TMPro.EditorUtilities;
+using UnityEngine.UI;
+using TMPro;
 
 public class TradeDisplay : NetworkBehaviour
 {
+    public RawImage imgForAnim;
+    public TMP_Text txtForAnim;
 
     public TMP_Text tradeDescription;
 
@@ -16,6 +21,7 @@ public class TradeDisplay : NetworkBehaviour
     private NetworkPlayer networkPlayer;
     private ulong clientId;
     private int playerIndex;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
@@ -120,11 +126,51 @@ public class TradeDisplay : NetworkBehaviour
     }
 
     [ClientRpc]
-     public void revealCardsForAllClientRpc(Trade assignedTrade, HiddenCard assignedHidden)
+    public void revealCardsForAllClientRpc(Trade assignedTrade, HiddenCard assignedHidden)
     {
         tradeDescription.text = assignedTrade.description;
         hiddenDescription.text = assignedHidden.description;
         tradeCard.SetActive(true);
         hiddenCard.SetActive(true);
+
+        StartCoroutine(UIChange());
+    }
+
+    private IEnumerator UIChange()
+    {
+        float timePassed = 0f;
+        float duration = 2.5f; // Duration of the transition in seconds
+        while (timePassed < duration)
+        {
+            timePassed += Time.deltaTime;
+            // We want to change the alpha of the imgForAnim
+            float alpha = Mathf.Lerp(0f, 0.8f, timePassed / duration);
+            // Set the alpha of the imgForAnim
+            if (imgForAnim != null)
+            {
+                imgForAnim.color = new Color(imgForAnim.color.r, imgForAnim.color.g, imgForAnim.color.b, alpha);
+                txtForAnim.gameObject.SetActive(true);
+            }
+            else
+            {
+                Debug.LogError("[TradeDisplayManager] tradePanel is not assigned in the Inspector.");
+            }
+            yield return null; // Wait for the next frame
+
+            // Check if the duration has passed
+            if (timePassed >= duration)
+            {
+                // Reset the alpha to 0 after the transition
+                if (imgForAnim != null)
+                {
+                    imgForAnim.color = new Color(imgForAnim.color.r, imgForAnim.color.g, imgForAnim.color.b, 0f);
+                    txtForAnim.gameObject.SetActive(false);
+                }
+                else
+                {
+                    Debug.LogError("[TradeDisplayManager] tradePanel is not assigned in the Inspector.");
+                }
+            }
+        }
     }
 }
