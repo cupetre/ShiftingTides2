@@ -430,33 +430,33 @@ public class TurnManager : NetworkBehaviour
         if (((type == "compensation" || type == "against-one") && voteManager.playerYes.Count == hidden.counts) ||
         (type == "against-yes-voters" && voteManager.playerYes.Count >= hidden.counts))
         {
-            if (hidden.effect.selfMoney != null)
+            if (hidden.effect.selfMoney != 0)
             {
                 resourceManager.AddMoneyServerRpc(playerId, hidden.effect.selfMoney);
             }
-            if (hidden.effect.othersMoney != null)
+            if (hidden.effect.othersMoney != 0)
             {
                 foreach (int yesVoter in playerYes)
                 {
                     resourceManager.AddMoneyServerRpc(yesVoter, hidden.effect.othersMoney);
                 }
             }
-            if (hidden.effect.selfPeople != null)
+            if (hidden.effect.selfPeople != 0)
             {
                 resourceManager.AddPeopleServerRpc(playerId, hidden.effect.selfPeople);
             }
-            if (hidden.effect.othersPeople != null)
+            if (hidden.effect.othersPeople != 0)
             {
                 foreach (int yesVoter in playerYes)
                 {
                     resourceManager.AddPeopleServerRpc(yesVoter, hidden.effect.othersPeople);
                 }
             }
-            if (hidden.effect.selfInfluence != null)
+            if (hidden.effect.selfInfluence != 0)
             {
                 resourceManager.AddInfluenceServerRpc(playerId, hidden.effect.selfInfluence);
             }
-            if (hidden.effect.othersInfluence != null)
+            if (hidden.effect.othersInfluence != 0)
             {
                 foreach (int yesVoter in playerYes)
                 {
@@ -472,37 +472,36 @@ public class TurnManager : NetworkBehaviour
             {
                 playerNo[i] = voteManager.playerNo[i];
             }
-            if (hidden.effect.selfMoney != null)
+            if (hidden.effect.selfMoney != 0)
             {
                 resourceManager.AddMoneyServerRpc(playerId, hidden.effect.selfMoney);
             }
-            if (hidden.effect.othersMoney != null)
+            if (hidden.effect.othersMoney != 0)
             {
                 foreach (int noVoter in playerNo)
                 {
                     resourceManager.AddMoneyServerRpc(noVoter, hidden.effect.othersMoney);
                 }
             }
-            if (hidden.effect.selfPeople != null)
+            if (hidden.effect.selfPeople != 0)
             {
                 resourceManager.AddPeopleServerRpc(playerId, hidden.effect.selfPeople);
             }
-            if (hidden.effect.othersPeople != null)
+            if (hidden.effect.othersPeople != 0)
             {
                 foreach (int noVoter in playerNo)
                 {
                     resourceManager.AddPeopleServerRpc(noVoter, hidden.effect.othersPeople);
                 }
             }
-            if (hidden.effect.selfInfluence != null)
+            if (hidden.effect.selfInfluence != 0)
             {
                 resourceManager.AddInfluenceServerRpc(playerId, hidden.effect.selfInfluence);
             }
-            if (hidden.effect.othersInfluence != null)
+            if (hidden.effect.othersInfluence != 0)
             {
                 foreach (int noVoter in playerNo)
                 {
-
                     resourceManager.AddInfluenceServerRpc(noVoter, hidden.effect.othersInfluence);
                 }
             }

@@ -87,11 +87,9 @@ public class HiddenCardManager : MonoBehaviour
 
         // if (Random.Range(0, 3) == 0) 
         // {
-           return hidden[Random.Range(0, hidden.Length)];
+        return hidden[Random.Range(0, hidden.Length)];
 
         // }
-
-        return null;
     }
 
     public bool AreHiddenCardsLoaded()

@@ -5,7 +5,6 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using TMPro.EditorUtilities;
 using UnityEngine.UI;
-using TMPro;
 
 public class TradeDisplay : NetworkBehaviour
 {
