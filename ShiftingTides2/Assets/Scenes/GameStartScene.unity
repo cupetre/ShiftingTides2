@@ -1333,7 +1333,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1897932510}
-  - {fileID: 442456990}
   m_Father: {fileID: 805211455}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5109,6 +5108,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5902365487927407312, guid: 1e98bdcb33f32844a8ee6caa0d0cb465, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5902365487927407312, guid: 1e98bdcb33f32844a8ee6caa0d0cb465, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -5215,6 +5218,14 @@ PrefabInstance:
     - target: {fileID: 8430216138453695337, guid: 1e98bdcb33f32844a8ee6caa0d0cb465, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8626087545795505893, guid: 1e98bdcb33f32844a8ee6caa0d0cb465, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8626087545795505893, guid: 1e98bdcb33f32844a8ee6caa0d0cb465, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
@@ -5344,7 +5355,8 @@ PrefabInstance:
       value: TradeCard
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3516411319378145074, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0fe265026af10ed818291bb8f6d1d6bf, type: 3}

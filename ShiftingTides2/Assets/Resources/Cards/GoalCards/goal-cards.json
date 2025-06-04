@@ -4,7 +4,7 @@
           "id": 1,
           "type": "achieve",
           "title": "Shadow Ruler",
-          "description": "End the game by achieving 100 Influence and 60 of People.",
+          "description": "Your faction aims to control the city from the shadows. Amass 100 Influence and 60 People before the game ends",
           "resources": {
             "money": 0,
             "people": 60,
@@ -17,7 +17,7 @@
           "id": 2,
           "type": "rounds",
           "title": "Civilian Hero",
-          "description": "Achieve a state of 90 money by the end of 6th round.",
+          "description": "You're building a public campaign rooted in generosity and trust. By round 6, secure 90 Money to fund your faction’s social rise.",
           "resources": {
             "money": 90,
             "people": 0,
@@ -30,7 +30,7 @@
           "id": 3,
           "type": "rounds",
           "title": "Civilian Hero",
-          "description": "Achieve a state of 90 people by the end of 6th round.",
+          "description": "Your movement is people-powered. By round 6, rally 90 People under your cause to prove your influence on the streets.",
           "resources": {
             "money": 0,
             "people": 90,
@@ -43,7 +43,7 @@
           "id": 5,
           "type": "achieve",
           "title": "The Vault Keeper",
-          "description": "Accumulate over 90 Money.",
+          "description": "Your faction seeks stability through wealth. End the game holding at least 90 Money. Enough to buy safety, favors, or silence.",
           "resources": {
             "money": 90,
             "people": 0,
@@ -56,7 +56,7 @@
           "id": 7,
           "type": "rounds",
           "title": "Protector of the Masses",
-          "description": "Reach 95 Money by round 6.",
+          "description": "The people see you as a shield in unstable times. Secure 95 Money by round 6 to finance programs and keep the streets on your side",
           "resources": {
             "money": 95,
             "people": 0,
@@ -69,7 +69,7 @@
           "id": 8,
           "type": "achieve",
           "title": "Money Mogul",
-          "description": "Finish with more than 80 Money while Influence is above 40%.",
+          "description": "Power comes from both coin and charisma. End the game with over 80 Money and at least 40 Influence to dominate the boardroom and backroom alike.",
           "resources": {
             "money": 80,
             "people": 0,
@@ -82,7 +82,7 @@
           "id": 9,
           "type": "achieve",
           "title": "Money Mogul",
-          "description": "Finish with more than 80 People while Influence is above 40.",
+          "description": "You rise as a leader with deep support and sway. End the game with more than 80 People and at least 40 Influence to control the masses.",
           "resources": {
             "money": 0,
             "people": 80,
