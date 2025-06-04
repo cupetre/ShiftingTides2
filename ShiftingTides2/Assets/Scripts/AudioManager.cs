@@ -104,6 +104,12 @@ public class AudioManager : MonoBehaviour
         audioSourceHeartbeat.Stop();
     }
 
+    public void StopHeartbeatSound()
+    {
+        audioSourceHeartbeat.Stop();
+        audioSourceHeartbeat.volume = minHeartbeatVolume; // Reset volume to minimum
+    }
+
     public void PlayCorrIncorrSound(bool isCorrect)
     {
         if (!isCorrect)

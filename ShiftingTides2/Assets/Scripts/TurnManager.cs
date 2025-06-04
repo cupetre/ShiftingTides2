@@ -23,6 +23,8 @@ public class TurnManager : NetworkBehaviour
     private ScreenTransition screenTransition;
     private GoalDisplay goalDisplay;
 
+    AudioManager audioManager;
+
     private Trade[] trades;
     private GameObject voteButtons;
 
@@ -59,6 +61,7 @@ public class TurnManager : NetworkBehaviour
         goalManager = FindFirstObjectByType<GoalAchieveManager>();
         tradeDisplay = FindFirstObjectByType<TradeDisplay>();
         goalDisplay = FindFirstObjectByType<GoalDisplay>();
+        audioManager = FindFirstObjectByType<AudioManager>();
 
         // Find vote manager instance in the scene
         voteButtons = GameObject.Find("YesNoButton");
@@ -252,7 +255,22 @@ public class TurnManager : NetworkBehaviour
             if (voteManager.voteDone.Value)
             {
                 Debug.Log("[TurnManager] All players voted. Ending turn early.");
+                audioManager.StopHeartbeatSound();
                 break;
+            }
+            else if (elapsed >= 40.0f)
+            {
+                // Play heartbeat sound if the player is running out of time
+                // but only for the player whose turn it is
+                if (audioManager == null)
+                {
+                    Debug.LogError("[TurnManager] AudioManager instance not found.");
+                }
+                else if (NetworkManager.Singleton.LocalClientId == clientIds[playerIndex])
+                {
+                    Debug.Log("[TurnManager] Playing heartbeat sound for player " + playerIndex);
+                    audioManager.PlayHeartbeatSound();
+                }
             }
 
             remainingTime.Value = turnDuration - elapsed;
@@ -270,6 +288,8 @@ public class TurnManager : NetworkBehaviour
     private IEnumerator ProcessTrade(int playerIndex, Trade trade, HiddenCard hiddenCard)
     {
         Debug.Log($"[TurnManager] Processing trade for player {playerIndex} with trade {trade.title}");
+
+        PlayGavelHitSoundClientRpc();
 
         // Get vote data 
         int[] playerYes = new int[voteManager.playerYes.Count];
@@ -515,6 +535,19 @@ public class TurnManager : NetworkBehaviour
         if (timerText != null)
         {
             timerText.text =Mathf.CeilToInt(newValue) + "s";
+        }
+    }
+
+    [ClientRpc]
+    private void PlayGavelHitSoundClientRpc()
+    {
+        if (audioManager != null)
+        {
+            audioManager.PlayGavelHitSound();
+        }
+        else
+        {
+            Debug.LogError("[TurnManager] AudioManager instance not found.");
         }
     }
 
