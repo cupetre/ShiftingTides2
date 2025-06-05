@@ -16,12 +16,16 @@ public class RelayManager : MonoBehaviour
     [SerializeField] TMP_InputField joinInput;
     [SerializeField] TextMeshProUGUI codeText;
     [SerializeField] TMP_InputField nameInputField;
+    [SerializeField] TMP_Text playerNameText;
+    [SerializeField] TMP_Text connectedNumText;
+
     public static string PlayerName { get; private set; }
 
     async void Start()
     {
         await UnityServices.InitializeAsync();
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        connectedNumText.gameObject.SetActive(false);
 
         hostButton.onClick.AddListener(async () =>
         {
@@ -35,6 +39,13 @@ public class RelayManager : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>()
                          .SetRelayServerData(relayData);
             NetworkManager.Singleton.StartHost();
+
+            hostButton.gameObject.SetActive(false);
+            joinButton.gameObject.SetActive(false);
+            joinInput.gameObject.SetActive(false);
+            nameInputField.gameObject.SetActive(false);
+            playerNameText.text = $"Player Name: {PlayerName}";
+            connectedNumText.gameObject.SetActive(true);
         });
 
         joinButton.onClick.AddListener(async () =>
@@ -45,6 +56,25 @@ public class RelayManager : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>()
                          .SetRelayServerData(relayData);
             NetworkManager.Singleton.StartClient();
+
+            hostButton.gameObject.SetActive(false);
+            joinButton.gameObject.SetActive(false);
+            joinInput.gameObject.SetActive(false);
+            nameInputField.gameObject.SetActive(false);
+            playerNameText.text = $"Player Name: {PlayerName}";
+            connectedNumText.gameObject.SetActive(true);
         });
+    }
+
+    private void FixedUpdate()
+    {
+        if (NetworkManager.Singleton.IsHost)
+        {
+            connectedNumText.text = $"Connected: {NetworkManager.Singleton.ConnectedClients.Count}/4";
+        }
+        else if (NetworkManager.Singleton.IsClient)
+        {
+            connectedNumText.text = $"Connected: {NetworkManager.Singleton.ConnectedClients.Count}/4";
+        }
     }
 }
