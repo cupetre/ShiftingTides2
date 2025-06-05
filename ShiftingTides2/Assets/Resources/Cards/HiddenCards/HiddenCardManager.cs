@@ -85,8 +85,22 @@ public class HiddenCardManager : MonoBehaviour
     {
         if (!hiddenLoaded || hidden == null) return null;
 
-        // if (Random.Range(0, 3) == 0) 
-        // {
+        /*// 25% channce to get a card
+        if (Random.Range(0, 4) == 0)
+        {
+            // Ensure we don't return the same card twice
+            int index;
+            do
+            {
+                index = Random.Range(0, hidden.Length);
+            } while (assignedHiddenCardsIndices.Contains(index));
+            assignedHiddenCardsIndices.Add(index);
+            return hidden[index];
+        }
+        else
+        {
+            return null;
+        }*/
         return hidden[Random.Range(0, hidden.Length)];
 
         // }

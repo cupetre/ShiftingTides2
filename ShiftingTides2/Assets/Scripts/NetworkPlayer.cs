@@ -230,6 +230,7 @@ public class NetworkPlayer : NetworkBehaviour
         if (spriteRenderer != null && playerIndex.Value == targetPlayerIndex)
         {
             spriteRenderer.enabled = false;
+            gameObject.SetActive(false); // Hide the player gameObject
             Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} sprite hidden on client.");
             playerLost.Value = true;
         }

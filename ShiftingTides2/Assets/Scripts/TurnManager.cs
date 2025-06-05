@@ -104,13 +104,66 @@ public class TurnManager : NetworkBehaviour
         StartTurnServerRpc();
     }
 
+    private void FixedUpdate()
+    {
+        if (IsServer && tradeInProgress)
+        {
+            // Hide voting buttons for all players who have lost
+            foreach (GameObject player in players)
+            {
+                var networkPlayer = player.GetComponent<NetworkPlayer>();
+                if (networkPlayer != null && networkPlayer.playerLost.Value)
+                {
+                    voteManager.HideVoteButtonsClientRpc(clientIds[networkPlayer.playerIndex.Value]);
+                }
+            }
+        }
+    }
+
     [ServerRpc(RequireOwnership = false)]
     public void StartTurnServerRpc()
     {
+        UpdatePlayersAliveServerRpc();
         if (currentPlayer.Value == -1)
         {
             currentPlayer.Value = 0;
             currentTurn.Value = 0;
+        }
+        else
+        {
+            // Revert scale for previous player
+            if (currentPlayer.Value == 0)
+            {
+                for (int i = 3; i >= 0; i--)
+                {
+                    // Revert scale for the player whose turn just ended, but keep checking if they haven't lost (playerLost in NetworkPlayer)
+                    var player = players[i];
+                    var networkPlayer = player.GetComponent<NetworkPlayer>();
+                    if (networkPlayer != null && !networkPlayer.playerLost.Value)
+                    {
+                        revertScaleClientRpc(i);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // Revert scale for the previous player, but keep checking if they haven't lost (playerLost in NetworkPlayer)
+                for (int i = currentPlayer.Value - 1; i >= 0; i--)
+                {
+                    var player = players[i];
+                    var networkPlayer = player.GetComponent<NetworkPlayer>();
+                    if (networkPlayer != null && !networkPlayer.playerLost.Value)
+                    {
+                        revertScaleClientRpc(i);
+                        break;
+                    }
+                }
+            }
+        }
+        if (players[currentPlayer.Value].GetComponent<NetworkPlayer>().playerLost.Value)
+        {
+            currentPlayer.Value = (currentPlayer.Value + 1) % numPlayers;
         }
 
         int safeCounter = 0;
@@ -173,9 +226,41 @@ public class TurnManager : NetworkBehaviour
     [ClientRpc]
     private void scalePlayerClientRpc(bool tradeEnd, int playerIndex)
     {
-        Vector3 currScale = players[playerIndex].transform.localScale;
-        players[playerIndex].transform.localScale = tradeEnd ? new Vector3(currScale.x / 2f, currScale.y / 2f, 1f)
-                                                             : new Vector3(currScale.x * 2f, currScale.y * 2f, 1f);
+        if (IsServer && !IsClient) return;
+        //Vector3 currScale = players[playerIndex].transform.localScale;
+        //players[playerIndex].transform.localScale = tradeEnd ? new Vector3(currScale.x / 2f, currScale.y / 2f, 1f)
+        //                                                     : new Vector3(currScale.x * 2f, currScale.y * 2f, 1f);
+
+        var allPlayers = FindObjectsByType<NetworkPlayer>(FindObjectsSortMode.None);
+        foreach (var player in allPlayers)
+        {
+            if (player.playerIndex.Value == playerIndex)
+            {
+                var tr = player.transform;
+                Vector3 currScale = tr.localScale;
+                tr.localScale = new Vector3(currScale.x * 2f, currScale.y * 2f, 1f);
+                break;
+            }
+        }
+    }
+
+    [ClientRpc]
+    private void revertScaleClientRpc(int playerIndex)
+    {
+        if (IsServer && !IsClient) return;
+
+        // Revert scale for the player whose turn ended
+        var allPlayers = FindObjectsByType<NetworkPlayer>(FindObjectsSortMode.None);
+        foreach (var player in allPlayers)
+        {
+            if (player.playerIndex.Value == playerIndex)
+            {
+                var tr = player.transform;
+                Vector3 currScale = tr.localScale;
+                tr.localScale = new Vector3(currScale.x / 2f, currScale.y / 2f, 1f);
+                break;
+            }
+        }
     }
 
     private IEnumerator TradeCoroutine(int playerIndex, Trade trade, HiddenCard hiddenCard)
@@ -198,7 +283,7 @@ public class TurnManager : NetworkBehaviour
 
         var player = players[playerIndex];
         var networkPlayer = player.GetComponent<NetworkPlayer>();
-        if (networkPlayer != null && !networkPlayer.playerLost.Value)
+        if (networkPlayer != null)
         {
             voteManager.DisplayVoteButtonsServerRpc();
         }
@@ -510,6 +595,26 @@ public class TurnManager : NetworkBehaviour
         else
         {
             Debug.LogError("[TurnManager] AudioManager instance not found.");
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdatePlayersAliveServerRpc()
+    {
+        if (IsServer)
+        {
+            int playersInGame = 0;
+            // Keep updating players array every turn, to prevent players who lost from being included in the turn order
+            for (int i = 0; i < numPlayers; i++)
+            {
+                NetworkPlayer player = players[i].GetComponent<NetworkPlayer>();
+                if (!player.playerLost.Value)
+                {
+                    playersInGame++;
+                }
+            }
+
+            voteManager.votingPlayers.Value = playersInGame;
         }
     }
 

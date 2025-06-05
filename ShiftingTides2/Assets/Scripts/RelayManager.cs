@@ -12,6 +12,7 @@ public class RelayManager : MonoBehaviour
 {
     [SerializeField] private Button hostButton;
     [SerializeField] private Button joinButton;
+    [SerializeField] private Button copyCodeButton;
     [SerializeField] private TMP_InputField joinInput;
     [SerializeField] private TextMeshProUGUI codeText;
     [SerializeField] private TMP_InputField nameInputField;
@@ -27,6 +28,7 @@ public class RelayManager : MonoBehaviour
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
 
         connectedNumText.gameObject.SetActive(false);
+        copyCodeButton.gameObject.SetActive(false);
 
         hostButton.onClick.AddListener(async () =>
         {
@@ -57,6 +59,12 @@ public class RelayManager : MonoBehaviour
             codeText.text = $"Code: {joinInput.text.Trim()}"; // usa o código digitado
             ToggleLobbyUI(false);
         });
+
+        copyCodeButton.onClick.AddListener(() =>
+        {
+            GUIUtility.systemCopyBuffer = joinCode;
+            Debug.Log($"Join code copied: {joinCode}");
+        });
     }
 
     private void ToggleLobbyUI(bool show)
@@ -67,6 +75,7 @@ public class RelayManager : MonoBehaviour
         nameInputField.gameObject.SetActive(show);
         playerNameText.text = string.Empty;
         connectedNumText.gameObject.SetActive(!show);
+        copyCodeButton.gameObject.SetActive(!show);
     }
 
     private void FixedUpdate()

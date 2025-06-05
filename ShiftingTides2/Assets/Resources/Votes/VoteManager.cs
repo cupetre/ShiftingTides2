@@ -17,6 +17,8 @@ public class VoteManager : NetworkBehaviour
     public Button noButton;
     private AudioManager audioManager;
 
+    public NetworkVariable<int> votingPlayers = new NetworkVariable<int>(3);
+
     private void Awake()
     {
         playerYes = new NetworkList<int>();
@@ -35,7 +37,7 @@ public class VoteManager : NetworkBehaviour
 
     void Update()
     {
-        if ((yesVotes.Value + noVotes.Value >= 3) && !voteDone.Value)
+        if ((yesVotes.Value + noVotes.Value >= votingPlayers.Value-1) && !voteDone.Value)
         {
             voteDone.Value = true;
             yesButton.gameObject.SetActive(false);
@@ -62,6 +64,12 @@ public class VoteManager : NetworkBehaviour
         if (networkPlayer == null)
         {
             Debug.LogError("[VoteManager] NetworkPlayer component not found");
+            return;
+        }
+
+        if (networkPlayer.playerLost.Value)
+        {
+            Debug.LogWarning($"[VoteManager] Player {networkPlayer.playerIndex.Value} has lost and cannot vote.");
             return;
         }
 
