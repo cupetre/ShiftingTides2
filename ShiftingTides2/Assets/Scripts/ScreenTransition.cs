@@ -5,6 +5,7 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using Unity.Collections;
+
 public class ScreenTransition : NetworkBehaviour
 {
     [Header("Referências de UI")]
@@ -13,19 +14,31 @@ public class ScreenTransition : NetworkBehaviour
     [SerializeField] private float returnToMenuDelay = 10f;
 
     private int localPlayerIndex = -1;
-    private NetworkList<FixedString128Bytes> playerNames;
-    
-     private void Awake()
+
+    public NetworkList<FixedString128Bytes> playerNames = new();
+
+    private void Awake()
     {
-        transitionImage.gameObject.SetActive(false);
-        transitionText.gameObject.SetActive(false);
         if (transitionImage != null) transitionImage.gameObject.SetActive(false);
         if (transitionText != null) transitionText.gameObject.SetActive(false);
-        playerNames = new NetworkList<FixedString128Bytes>();
     }
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
+        if (IsServer)
+        {
+            playerNames.Clear();
+
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                var netPlayer = client.PlayerObject.GetComponent<NetworkPlayer>();
+                if (netPlayer != null)
+                {
+                    playerNames.Add(netPlayer.playerName.Value);
+                }
+            }
+        }
+
         if (IsClient && NetworkManager.Singleton.LocalClient != null)
         {
             var playerObj = NetworkManager.Singleton.LocalClient.PlayerObject;
@@ -35,11 +48,11 @@ public class ScreenTransition : NetworkBehaviour
                 if (netPlayer != null)
                 {
                     localPlayerIndex = netPlayer.playerIndex.Value;
-                    playerNames[localPlayerIndex] = netPlayer.playerName.Value;
                     Debug.Log($"[ScreenTransition] Cliente inicializado como Player {localPlayerIndex}");
                     return;
                 }
             }
+
             Debug.LogWarning("[ScreenTransition] Não foi possível obter NetworkPlayer do LocalClient.");
         }
     }
@@ -59,13 +72,18 @@ public class ScreenTransition : NetworkBehaviour
             yield break;
         }
 
+        // Fallback seguro para evitar IndexOutOfRange
+        string targetName = (targetPlayerIndex >= 0 && targetPlayerIndex < playerNames.Count)
+            ? playerNames[targetPlayerIndex].ToString()
+            : $"Player {targetPlayerIndex}";
+
         if (localPlayerIndex == targetPlayerIndex)
         {
             transitionText.text = "YOU LOST";
         }
         else
         {
-            transitionText.text = $"Player {playerNames[targetPlayerIndex]} lost";
+            transitionText.text = $"{targetName} lost";
         }
 
         transitionImage.gameObject.SetActive(true);
@@ -76,16 +94,12 @@ public class ScreenTransition : NetworkBehaviour
         transitionImage.gameObject.SetActive(false);
         transitionText.gameObject.SetActive(false);
 
-        if (localPlayerIndex == targetPlayerIndex)
-        {
-            yield return ReturnToMenu();
-        }
     }
 
     [ClientRpc]
     public void SetPlayerWonClientRpc(int targetPlayerIndex)
     {
-        Debug.Log($"[ScreenTransition] SetPlayerWonClientRpc chamado no cliente {localPlayerIndex}. targetPlayer = {playerNames[targetPlayerIndex]}");
+        Debug.Log($"[ScreenTransition] SetPlayerWonClientRpc chamado no cliente {localPlayerIndex}. targetPlayer = {targetPlayerIndex}");
         StartCoroutine(HandlePlayerWon(targetPlayerIndex));
     }
 
@@ -97,13 +111,18 @@ public class ScreenTransition : NetworkBehaviour
             yield break;
         }
 
+        // Fallback seguro para evitar IndexOutOfRange
+        string targetName = (targetPlayerIndex >= 0 && targetPlayerIndex < playerNames.Count)
+            ? playerNames[targetPlayerIndex].ToString()
+            : $"Player {targetPlayerIndex}";
+
         if (localPlayerIndex == targetPlayerIndex)
         {
             transitionText.text = "YOU WON!";
         }
         else
         {
-            transitionText.text = $"Player {playerNames[targetPlayerIndex]} won the game";
+            transitionText.text = $"{targetName} won the game";
         }
 
         transitionImage.gameObject.SetActive(true);

@@ -3,7 +3,6 @@ using TMPro;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
-using TMPro.EditorUtilities;
 using UnityEngine.UI;
 
 public class TradeDisplay : NetworkBehaviour

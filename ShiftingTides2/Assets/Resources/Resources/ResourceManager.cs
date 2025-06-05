@@ -96,7 +96,7 @@ public class ResourceManager : NetworkBehaviour
         if (money[playerIndex] <= 0)
         {
             loseList[playerIndex] = true;
-            
+            networkPlayer.HandleLostClientRpc(playerIndex);
             ShowLoseTransitionForAllClients(playerIndex);
         }
     }
@@ -118,6 +118,12 @@ public class ResourceManager : NetworkBehaviour
     public void AddInfluenceServerRpc(int playerIndex, int amount)
     {
         influence[playerIndex] = Mathf.Clamp(influence[playerIndex] + amount, 0, 100);
+        if (influence[playerIndex] <= 0)
+        {
+            loseList[playerIndex] = true;
+            networkPlayer.HandleLostClientRpc(playerIndex);
+            ShowLoseTransitionForAllClients(playerIndex);
+        }
     }
 
     void ShowLoseTransitionForAllClients(int targetPlayerIndex)

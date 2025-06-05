@@ -35,6 +35,9 @@ public class NetworkPlayer : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+ public NetworkVariable<bool> playerLost = new NetworkVariable<bool>(false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server);
     public override void OnNetworkSpawn()
     {
         if (hasSpawned) return;
@@ -228,6 +231,7 @@ public class NetworkPlayer : NetworkBehaviour
         {
             spriteRenderer.enabled = false;
             Debug.Log($"[NetworkPlayer] Player {playerIndex.Value} sprite hidden on client.");
+            playerLost.Value = true;
         }
     }
 

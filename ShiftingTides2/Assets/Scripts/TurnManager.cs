@@ -5,7 +5,6 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
-// using UnityEditor.Rendering.LookDev;
 
 public class TurnManager : NetworkBehaviour
 {
@@ -36,8 +35,7 @@ public class TurnManager : NetworkBehaviour
     public bool turnActive = false;
     public int[] usedTrades;
 
-    //timer variables
-    [SerializeField] private TMP_Text timerText; // Assign in inspector (optional, if UI is needed)
+    [SerializeField] private TMP_Text timerText;
     private Coroutine timerCoroutine;
     [SerializeField] private float turnDuration = 45f;
     private NetworkVariable<float> remainingTime = new(writePerm: NetworkVariableWritePermission.Server);
@@ -53,7 +51,6 @@ public class TurnManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // Apply Instances
         tradeManager = FindFirstObjectByType<TradeManager>();
         gameManager = FindFirstObjectByType<GameManager>();
         roundManager = FindFirstObjectByType<RoundManager>();
@@ -63,7 +60,6 @@ public class TurnManager : NetworkBehaviour
         goalDisplay = FindFirstObjectByType<GoalDisplay>();
         audioManager = FindFirstObjectByType<AudioManager>();
 
-        // Find vote manager instance in the scene
         voteButtons = GameObject.Find("YesNoButton");
         if (voteButtons == null)
         {
@@ -71,24 +67,9 @@ public class TurnManager : NetworkBehaviour
             return;
         }
         voteManager = voteButtons.GetComponent<VoteManager>();
-        if (tradeDisplay == null)
+        if (tradeDisplay == null || tradeManager == null || gameManager == null || voteManager == null)
         {
-            Debug.LogError("[TurnManager] TradeDisplay instance not found.");
-            return;
-        }
-        if (tradeManager == null)
-        {
-            Debug.LogError("[TurnManager] TradeManager instance not found.");
-            return;
-        }
-        if (gameManager == null)
-        {
-            Debug.LogError("[TurnManager] GameManager instance not found.");
-            return;
-        }
-        if (voteManager == null)
-        {
-            Debug.LogError("[TurnManager] VoteManager instance not found.");
+            Debug.LogError("[TurnManager] One or more managers not found.");
             return;
         }
 
@@ -106,7 +87,6 @@ public class TurnManager : NetworkBehaviour
         }
 
         gameManager.InitializePlayersIfNeeded();
-        // Initialize the players list with player objects
         for (int i = 0; i < numPlayers; i++)
         {
             if (gameManager.playerObjects[i] == null)
@@ -114,114 +94,97 @@ public class TurnManager : NetworkBehaviour
                 Debug.LogError($"[TurnManager] Player object at index {i} is null.");
                 return;
             }
-            // Check if the player object is already in the list
             if (!players.Contains(gameManager.playerObjects[i]))
             {
                 players.Add(gameManager.playerObjects[i]);
                 Debug.Log($"[TurnManager] Player object at index {i} added to the list.");
             }
-            else
-            {
-                Debug.LogWarning($"[TurnManager] Player object at index {i} is already in the list.");
-            }
         }
 
-        // Start the first turn
         StartTurnServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void StartTurnServerRpc()
     {
-        GoalManager goalManager = FindFirstObjectByType<GoalManager>();
-        if (goalManager == null)
-        {
-            Debug.LogError("[TurnManager] GoalManager instance not found.");
-            return;
-        }
-
-        foreach (var player in players)
-        {
-            if (player == null)
-            {
-                Debug.LogError("[TurnManager] Player object is null.");
-                return;
-            }
-            // You can add player-specific logic here if needed
-            // No need to find GoalManager every time
-        }
-
         if (currentPlayer.Value == -1)
         {
             currentPlayer.Value = 0;
             currentTurn.Value = 0;
         }
-        // Start the turn for the current player
-        StartTradeServerRpc(currentPlayer.Value);
+
+        int safeCounter = 0;
+        while (safeCounter < numPlayers)
+        {
+            var player = players[currentPlayer.Value];
+            var networkPlayer = player.GetComponent<NetworkPlayer>();
+
+            if (networkPlayer != null && !networkPlayer.playerLost.Value)
+            {
+                StartTradeServerRpc(currentPlayer.Value);
+                return;
+            }
+
+            currentPlayer.Value = (currentPlayer.Value + 1) % numPlayers;
+            safeCounter++;
+        }
+
+        Debug.LogWarning("[TurnManager] No active players available to start turn.");
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void StartTradeServerRpc(int playerIndex)
     {
-        // Check if trade is already in progress
-        if (tradeInProgress)
-        {
-            Debug.LogError("[TurnManager] Trade is already in progress.");
-            return;
-        }
+        if (tradeInProgress) return;
         tradeInProgress = true;
 
-        if (playerIndex < 0 || playerIndex >= numPlayers)
+        if (playerIndex < 0 || playerIndex >= numPlayers) return;
+
+        var player = players[playerIndex];
+        var networkPlayer = player.GetComponent<NetworkPlayer>();
+
+        if (networkPlayer == null || networkPlayer.playerLost.Value)
         {
-            Debug.LogError($"[TurnManager] Invalid player index: {playerIndex}");
+            Debug.Log("[TurnManager] Skipping trade for player who lost.");
+            EndTurnDirectly(playerIndex);
             return;
         }
-        // Check if the current player is the one whose turn it is
-        if (currentPlayer.Value != playerIndex)
-        {
-            Debug.LogError($"[TurnManager] It's not player {playerIndex}'s turn.");
-            return;
-        }
-        // Start the trade for the current player
+
+        if (currentPlayer.Value != playerIndex) return;
+
         Trade trade = tradeManager.GetRandomTrade();
         HiddenCard hiddenCard = HiddenCardManager.Instance.GetRandomHiddenCard();
 
-        // Make the player in turn object larger
         scalePlayerClientRpc(false, playerIndex);
-
         currentTrade.Value = trade.id;
 
-        Debug.Log($"[TurnManager] Player {playerIndex} is starting trade {trade.title} (ID: {trade.id})");
-        Debug.Log($"[TurnManager] Hidden Card: {hiddenCard.description}");
         StartCoroutine(TradeCoroutine(playerIndex, trade, hiddenCard));
+    }
+
+    private void EndTurnDirectly(int playerIndex)
+    {
+        currentPlayer.Value = (currentPlayer.Value + 1) % numPlayers;
+        currentTurn.Value++;
+        currentTrade.Value = -1;
+        voteManager.voteDone.Value = false;
+        StartTurnServerRpc();
     }
 
     [ClientRpc]
     private void scalePlayerClientRpc(bool tradeEnd, int playerIndex)
     {
-        Vector3 currScale = players[playerIndex].gameObject.transform.localScale;
-        if (tradeEnd)
-        {
-            players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x / 2.0f, currScale.y / 2.0f, 1.0f);
-        }
-        else
-        {
-            players[playerIndex].gameObject.transform.localScale = new Vector3(currScale.x * 2.0f, currScale.y * 2.0f, 1.0f);
-        }
-
+        Vector3 currScale = players[playerIndex].transform.localScale;
+        players[playerIndex].transform.localScale = tradeEnd ? new Vector3(currScale.x / 2f, currScale.y / 2f, 1f)
+                                                             : new Vector3(currScale.x * 2f, currScale.y * 2f, 1f);
     }
 
     private IEnumerator TradeCoroutine(int playerIndex, Trade trade, HiddenCard hiddenCard)
     {
-        Debug.Log($"[TurnManager] Starting trade coroutine for player {playerIndex} with trade {trade.title}");
-
         voteManager.yesVotes.Value = 0;
         voteManager.noVotes.Value = 0;
 
-        // Optional: shorten or remove delay if unnecessary
-        yield return new WaitForSeconds(2f); // instead of 10s if you want snappier
+        yield return new WaitForSeconds(2f);
 
-        // Display the trade to the current player safely
         if (playerIndex < clientIds.Length)
         {
             tradeDisplay.DisplayTradeClientRpc(clientIds[playerIndex], trade);
@@ -230,19 +193,17 @@ public class TurnManager : NetworkBehaviour
                 tradeDisplay.DisplayHiddenCardClientRpc(clientIds[playerIndex], hiddenCard);
             }
         }
-        else
-        {
-            Debug.LogError("[TurnManager] Invalid playerIndex or clientIds array.");
-        }
 
-        // Wait before showing vote buttons so player can read trade info
         yield return new WaitForSeconds(3f);
 
-        voteManager.DisplayVoteButtonsServerRpc();
+        var player = players[playerIndex];
+        var networkPlayer = player.GetComponent<NetworkPlayer>();
+        if (networkPlayer != null && !networkPlayer.playerLost.Value)
+        {
+            voteManager.DisplayVoteButtonsServerRpc();
+        }
 
-        // Hide vote buttons for current player if that is intentional
         voteManager.HideVoteButtonsClientRpc(clientIds[playerIndex]);
-
         timerCoroutine = StartCoroutine(TurnTimerRoutine(playerIndex, trade, hiddenCard));
     }
 
@@ -484,14 +445,15 @@ public class TurnManager : NetworkBehaviour
                     resourceManager.AddInfluenceServerRpc(yesVoter, hidden.effect.othersInfluence);
                 }
             }
+            return;
         }
-        if ((type == "against-all") && voteManager.playerYes.Count == hidden.counts)
+        int[] playerNo = new int[voteManager.playerNo.Count];
+        for (int i = 0; i < voteManager.playerNo.Count; i++)
         {
-            int[] playerNo = new int[voteManager.playerNo.Count];
-            for (int i = 0; i < voteManager.playerNo.Count; i++)
-            {
-                playerNo[i] = voteManager.playerNo[i];
-            }
+            playerNo[i] = voteManager.playerNo[i];
+        }
+        if ((type == "against-all") && playerNo.Length == 0)
+        {
             if (hidden.effect.selfMoney != 0)
             {
                 resourceManager.AddMoneyServerRpc(playerId, hidden.effect.selfMoney);
@@ -534,7 +496,7 @@ public class TurnManager : NetworkBehaviour
     {
         if (timerText != null)
         {
-            timerText.text =Mathf.CeilToInt(newValue) + "s";
+            timerText.text = Mathf.CeilToInt(newValue) + "s";
         }
     }
 
