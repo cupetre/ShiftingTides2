@@ -129,54 +129,6 @@ public class TurnManager : NetworkBehaviour
             currentPlayer.Value = 0;
             currentTurn.Value = 0;
         }
-        if (!players[currentPlayer.Value].GetComponent<NetworkPlayer>().playerLost.Value)
-        {
-            // If the current player has lost, find the next player who hasn't lost
-            int notLost = 0;
-            while (notLost < numPlayers)
-            {
-                var player = players[currentPlayer.Value];
-                var networkPlayer = player.GetComponent<NetworkPlayer>();
-                if (networkPlayer != null && !networkPlayer.playerLost.Value)
-                {
-                    break;
-                }
-                currentPlayer.Value = (currentPlayer.Value + 1) % numPlayers;
-                notLost++;
-            }
-        }
-        else
-        {
-            // Revert scale for previous player
-            if (currentPlayer.Value == 0)
-            {
-                for (int i = 3; i >= 0; i--)
-                {
-                    // Revert scale for the player whose turn just ended, but keep checking if they haven't lost (playerLost in NetworkPlayer)
-                    var player = players[i];
-                    var networkPlayer = player.GetComponent<NetworkPlayer>();
-                    if (networkPlayer != null && !networkPlayer.playerLost.Value)
-                    {
-                        revertScaleClientRpc(i);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                // Revert scale for the previous player, but keep checking if they haven't lost (playerLost in NetworkPlayer)
-                for (int i = currentPlayer.Value - 1; i >= 0; i--)
-                {
-                    var player = players[i];
-                    var networkPlayer = player.GetComponent<NetworkPlayer>();
-                    if (networkPlayer != null && !networkPlayer.playerLost.Value)
-                    {
-                        revertScaleClientRpc(i);
-                        break;
-                    }
-                }
-            }
-        }
         if (players[currentPlayer.Value].GetComponent<NetworkPlayer>().playerLost.Value)
         {
             currentPlayer.Value = (currentPlayer.Value + 1) % numPlayers;
@@ -474,6 +426,24 @@ public class TurnManager : NetworkBehaviour
             if (networkPlayer != null)
             {
                 networkPlayer.emotionState.Value = EmotionState.Neutral;
+            }
+        }
+
+        if (!players[currentPlayer.Value].GetComponent<NetworkPlayer>().playerLost.Value)
+        {
+            // If the current player has lost, find the next player who hasn't lost
+            int notLost = 0;
+            while (notLost < numPlayers)
+            {
+                var player = players[currentPlayer.Value];
+                var networkPlayer = player.GetComponent<NetworkPlayer>();
+                if (networkPlayer != null && !networkPlayer.playerLost.Value)
+                {
+                    revertScaleClientRpc(currentPlayer.Value-1);
+                    break;
+                }
+                currentPlayer.Value = (currentPlayer.Value + 1) % numPlayers;
+                notLost++;
             }
         }
 

@@ -358,23 +358,23 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 1920
-      height: 896
-    m_Scale: {x: 0.82962954, y: 0.8296296}
-    m_Translation: {x: 959.99994, y: 447.99997}
+      width: 1100
+      height: 509
+    m_Scale: {x: 0.47129634, y: 0.4712963}
+    m_Translation: {x: 550, y: 254.5}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -1157.143
+      x: -1166.994
       y: -540
-      width: 2314.286
+      width: 2333.988
       height: 1080
     m_MinimalGUI: 1
-  m_defaultScale: 0.8296296
-  m_LastWindowPixelSize: {x: 1920, y: 917}
+  m_defaultScale: 0.4712963
+  m_LastWindowPixelSize: {x: 1100, y: 530}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000
@@ -403,7 +403,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 79
+    y: 24
     width: 360
     height: 530
   m_SerializedDataModeController:
@@ -420,7 +420,7 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 90e90000
+      m_SelectedIDs: 
       m_LastClickedID: 0
       m_ExpandedIDs: 9ae9ffff02fbffff
       m_RenameOverlay:
@@ -468,8 +468,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 361
-    y: 79
+    x: 362
+    y: 24
     width: 1100
     height: 530
   m_SerializedDataModeController:
@@ -1194,7 +1194,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 46}
     m_SelectedIDs: d4f40000
     m_LastClickedID: 62676
-    m_ExpandedIDs: 000000008aec000000ca9a3bffffff7f
+    m_ExpandedIDs: 000000008aec0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1223,7 +1223,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000008aec000000ca9a3bffffff7f
+    m_ExpandedIDs: 000000008aec0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1303,7 +1303,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 635
+    y: 580
     width: 1462
     height: 359
   m_SerializedDataModeController:
@@ -1387,8 +1387,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Multiplayer Play Mode\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1463
-    y: 79
+    x: 1464
+    y: 24
     width: 456
     height: 915
   m_SerializedDataModeController:
