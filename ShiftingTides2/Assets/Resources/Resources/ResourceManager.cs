@@ -106,9 +106,10 @@ public class ResourceManager : NetworkBehaviour
                     networkPlayer.HandleLostClientRpc(idx);
                     ShowLoseTransitionForAllClients(idx);
                 }
-            else
-            {
-                goalAchieveManager.CheckGoal(idx);
+                else
+                {
+                    goalAchieveManager.CheckGoal(idx);
+                }
             }
         }
     }
