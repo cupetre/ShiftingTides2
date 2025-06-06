@@ -62,12 +62,12 @@ public class GoalAchieveManager : NetworkBehaviour
 
         bool ok = false;
         // Goal targeting self
-        if (goal.Target == Goal.TargetType.Self)
-        {
-            ok = curMoney >= goal.resources.money
-              && curInfluence >= goal.resources.influence
-              && curPeople >= goal.resources.people;
-        }
+        //if (goal.Target == Goal.TargetType.Self)
+        //
+        //
+        ok = curMoney >= goal.resources.money
+        && curInfluence >= goal.resources.influence
+        && curPeople >= goal.resources.people;
         if (ok)
         {
             achieved[playerIndex] = true;

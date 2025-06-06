@@ -65,6 +65,12 @@ public class ResourceManager : NetworkBehaviour
             }
         }
 
+        // Initialize loseList with 4 false values
+        for (int i = 0; i < 4; i++)
+        {
+            loseList.Add(false);
+        }
+
         money.OnListChanged += OnResourceChanged;
         people.OnListChanged += OnResourceChanged;
         influence.OnListChanged += OnResourceChanged;
@@ -77,11 +83,32 @@ public class ResourceManager : NetworkBehaviour
         if (changeEvent.Index == playerIndex)
         {
             UpdateUI();
-            if (money[changeEvent.Index] <= 0 || people[changeEvent.Index] <= 0 || influence[changeEvent.Index] <= 0)
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (!IsServer) return;
+
+        // Check if any of the players has gone below 0 in any resource
+        GameManager gameManager = FindFirstObjectByType<GameManager>();
+        ResourceManager resourceManager = FindFirstObjectByType<ResourceManager>();
+        GoalAchieveManager goalAchieveManager = FindFirstObjectByType<GoalAchieveManager>();
+        foreach (GameObject player in gameManager.playerObjects)
+        {
+            NetworkPlayer netPlayer = player.GetComponent<NetworkPlayer>();
+            int idx = netPlayer.playerIndex.Value;
+            if (money[idx] <= 0 || people[idx] <= 0 || influence[idx] <= 0)
             {
-                loseList[changeEvent.Index] = true;
-                networkPlayer.HandleLostClientRpc(changeEvent.Index);
-                ShowLoseTransitionForAllClients(changeEvent.Index);
+                if (!loseList[idx])
+                {
+                    loseList[idx] = true;
+                    networkPlayer.HandleLostClientRpc(idx);
+                    ShowLoseTransitionForAllClients(idx);
+                }
+            else
+            {
+                goalAchieveManager.CheckGoal(idx);
             }
         }
     }
@@ -91,12 +118,6 @@ public class ResourceManager : NetworkBehaviour
         if (changeEvent.Index == playerIndex)
         {
             UpdateUI();
-            if (money[changeEvent.Index] <= 0 || people[changeEvent.Index] <= 0 || influence[changeEvent.Index] <= 0)
-            {
-                loseList[changeEvent.Index] = true;
-                networkPlayer.HandleLostClientRpc(changeEvent.Index);
-                ShowLoseTransitionForAllClients(changeEvent.Index);
-            }
         }
     }
 

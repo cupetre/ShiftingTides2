@@ -129,6 +129,22 @@ public class TurnManager : NetworkBehaviour
             currentPlayer.Value = 0;
             currentTurn.Value = 0;
         }
+        if (players[currentPlayer.Value].GetComponent<NetworkPlayer>().playerLost.Value)
+        {
+            // If the current player has lost, find the next player who hasn't lost
+            int notLost = 0;
+            while (notLost < numPlayers)
+            {
+                var player = players[currentPlayer.Value];
+                var networkPlayer = player.GetComponent<NetworkPlayer>();
+                if (networkPlayer != null && !networkPlayer.playerLost.Value)
+                {
+                    break;
+                }
+                currentPlayer.Value = (currentPlayer.Value + 1) % numPlayers;
+                notLost++;
+            }
+        }
         else
         {
             // Revert scale for previous player
@@ -424,7 +440,10 @@ public class TurnManager : NetworkBehaviour
             Debug.Log($"[TurnManager] Trade completed for player {playerIndex}");
 
             // Player didn’t win, continue to EndTurnCoroutine
-            StartCoroutine(EndTurnCoroutine(playerIndex, trade, hiddenCard));
+            if (!checkWin)
+            {
+                StartCoroutine(EndTurnCoroutine(playerIndex, trade, hiddenCard));
+            }
         }
         yield return null;
     }
