@@ -58,9 +58,9 @@ public class ResourceManager : NetworkBehaviour
         {
             for (int i = 0; i < 4; i++)
             {
-                money.Add(20);
-                people.Add(30);
-                influence.Add(50f);
+                money.Add(40);
+                people.Add(40);
+                influence.Add(40f);
                 loseList.Add(false);
             }
         }
@@ -100,6 +100,9 @@ public class ResourceManager : NetworkBehaviour
             int idx = netPlayer.playerIndex.Value;
             if (money[idx] <= 0 || people[idx] <= 0 || influence[idx] <= 0)
             {
+                money[idx] = 0;
+                people[idx] = 0;
+                influence[idx] = 0;
                 if (!loseList[idx])
                 {
                     loseList[idx] = true;

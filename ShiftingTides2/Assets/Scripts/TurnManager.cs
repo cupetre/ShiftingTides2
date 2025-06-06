@@ -129,7 +129,7 @@ public class TurnManager : NetworkBehaviour
             currentPlayer.Value = 0;
             currentTurn.Value = 0;
         }
-        if (players[currentPlayer.Value].GetComponent<NetworkPlayer>().playerLost.Value)
+        if (!players[currentPlayer.Value].GetComponent<NetworkPlayer>().playerLost.Value)
         {
             // If the current player has lost, find the next player who hasn't lost
             int notLost = 0;
@@ -320,7 +320,7 @@ public class TurnManager : NetworkBehaviour
                 audioManager.StopHeartbeatSound();
                 break;
             }
-            else if (elapsed >= 40.0f)
+            else if (elapsed >= 90.0f)
             {
                 // Play heartbeat sound if the player is running out of time
                 // but only for the player whose turn it is
@@ -383,7 +383,7 @@ public class TurnManager : NetworkBehaviour
         goalDisplay.UpdateProgressDisplay();
 
         tradeDisplay.revealCardsForAllClientRpc(trade, hiddenCard);
-        float waitTime = 5f;
+        float waitTime = 20f;
         float elapsedTime = 0f;
 
         while (elapsedTime < waitTime)
